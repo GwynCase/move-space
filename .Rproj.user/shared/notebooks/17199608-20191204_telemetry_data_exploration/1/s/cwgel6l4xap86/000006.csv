@@ -1,0 +1,6 @@
+"0","df %>%"
+"0","  select(site, id, no.fix) %>%"
+"0","  group_by(site, id) %>%"
+"0","  summarize(total=n(), nofix=sum(no.fix)) %>%"
+"0","  mutate(fix=total-nofix, p=nofix/total * 100) %>%"
+"0","  kable(col.names=c('site', 'id', 'total records', 'no fix', 'fix', '% missed'), align='l')"

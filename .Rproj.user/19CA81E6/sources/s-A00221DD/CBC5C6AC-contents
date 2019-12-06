@@ -43,26 +43,33 @@ ggplot(aes(x=week, y=n, fill=no.fix)) +
   theme(legend.position='bottom') +
   facet_wrap(~id)
 
+df %>%
+  mutate(no.fix=as_factor(as.character(no.fix))) %>%
+           mutate(week=week(datetime)) %>%
+           count(id, week, no.fix) %>%
+           ggplot(aes(x=week, y=n, fill=no.fix)) +
+           geom_bar(position='stack', stat='identity') +
+           scale_fill_manual(values=c('gray', 'red'), name='Fixes per bird',
+                             labels=c('fix', 'no fix')) +
+           labs(y='Number of fixes', x='Week') +
+           theme_classic() +
+           theme(legend.position='bottom') +
+           facet_wrap(~id)
+
 # And within a single day?
 
 df %>%
   as_factor(no.fix) %>%
-  count(id, hour(datetime), no.fix) %>%
-  ggplot(aes(x=time, y=n, fill=no.fix, width=7200)) +
+  mutate(hour=hour(datetime)) %>%
+  count(id, hour, no.fix) %>%
+  ggplot(aes(x=hour, y=n, fill=no.fix)) +
   geom_bar(position='stack', stat='identity') +
   scale_fill_manual(values=c('gray', 'red'), name='Fixes per bird',
                     labels=c('fix', 'no fix')) +
-  labs(y='Number of fixes', x='Week') +
+  labs(y='Number of fixes', x='Time of day') +
   theme_classic() +
   theme(legend.position='bottom') +
   facet_wrap(~id)
-
-hour(datetime)
-
-df %>%
-  as_factor(no.fix) %>%
-  count(id, hour(datetime), no.fix)
-
 
 # Create intervals for breeding chronology.
 

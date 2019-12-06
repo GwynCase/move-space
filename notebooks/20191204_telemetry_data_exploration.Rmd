@@ -1,6 +1,8 @@
 ---
 title: "Telemetry data exploration"
-output: html_notebook
+output: 
+  github_document
+  
 ---
 
 As a preliminary step to doing real science, I want to do some basic exploration of my telemetry data. I'm interested in things like:
@@ -13,7 +15,7 @@ As a preliminary step to doing real science, I want to do some basic exploration
 * Number of bursts
 ```{r, message=FALSE}
 library('lubridate')
-library('dplyr')
+library('tidyverse')
 library('knitr')
 
 df <- read.csv('../data/processed/telem_all.csv', header=TRUE, stringsAsFactors=FALSE)
@@ -38,7 +40,8 @@ HAR07 was the bird tagged in 2018 whose tag fell off sometime during the winter,
 I'll make a histogram plot for each bird with week on the x axis and number of missed fixes on the y axis.
 ```{r, message=FALSE}
 df %>%
-  as_factor(no.fix) %>%
+  mutate(no.fix=as_factor(as.character(no.fix))) %>%
+  mutate(week=week(datetime)) %>%
   count(id, week, no.fix) %>%
 ggplot(aes(x=week, y=n, fill=no.fix)) +
   geom_bar(position='stack', stat='identity') +
@@ -50,3 +53,19 @@ ggplot(aes(x=week, y=n, fill=no.fix)) +
   facet_wrap(~id)
 ```
 There really doesn't seem to be any pattern, though it's hard to tell with such a short time series. What about within a single day?
+```{r, message=FALSE}
+df %>%
+  mutate(no.fix=as_factor(as.character(no.fix))) %>%
+  mutate(hour=hour(datetime)) %>%
+  count(id, hour, no.fix) %>%
+  ggplot(aes(x=hour, y=n, fill=no.fix)) +
+  geom_bar(position='stack', stat='identity') +
+  scale_fill_manual(values=c('gray', 'red'), name='Fixes per bird',
+                    labels=c('fix', 'no fix')) +
+  labs(y='Number of fixes', x='Time of day') +
+  theme_classic() +
+  theme(legend.position='bottom') +
+  facet_wrap(~id)
+```
+
+So that doesn't seem to have any real pattern, either.
