@@ -69,4 +69,4 @@ df %>%
   facet_wrap(~id)
 ```
 
-So that doesn't seem to have any real pattern, either.
+So that doesn't seem to have any real pattern, either. But there does seem to be something odd going on with HAR08, that it doesn't seem to be even trying to take locations prior to around noon. I'll have to look into that more closely.
