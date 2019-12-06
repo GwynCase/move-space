@@ -13,19 +13,8 @@ As a preliminary step to doing real science, I want to do some basic exploration
 ``` r
 library('lubridate')
 library('tidyverse')
-```
-
-    ## Warning: package 'tibble' was built under R version 3.5.3
-
-    ## Warning: package 'dplyr' was built under R version 3.5.3
-
-``` r
 library('knitr')
-```
 
-    ## Warning: package 'knitr' was built under R version 3.5.3
-
-``` r
 df <- read.csv('../data/processed/telem_all.csv', header=TRUE, stringsAsFactors=FALSE)
 
 # Convert times and dates immediately, just to get it over with.
@@ -50,15 +39,16 @@ df %>%
   kable(col.names=c('site', 'id', 'total records', 'no fix', 'fix', '% missed'), align='l')
 ```
 
-| site    | id       | total records    | no fix   | fix     | % missed                                                                                                                                                                                                                                                                                                                           |
-|:--------|:---------|:-----------------|:---------|:--------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MTC     | HAR09    | 1243             | 27       | 1216    | 2.1721641                                                                                                                                                                                                                                                                                                                          |
-| MTC     | HAR10    | 928              | 5        | 923     | 0.5387931                                                                                                                                                                                                                                                                                                                          |
-| RLK     | HAR04    | 1617             | 20       | 1597    | 1.2368584                                                                                                                                                                                                                                                                                                                          |
-| SKA     | HAR05    | 4742             | 71       | 4671    | 1.4972585                                                                                                                                                                                                                                                                                                                          |
-| TCR     | HAR07    | 2806             | 637      | 2169    | 22.7013542                                                                                                                                                                                                                                                                                                                         |
-| TCR     | HAR08    | 145              | 10       | 135     | 6.8965517                                                                                                                                                                                                                                                                                                                          |
-| HAR07 w | as the b | ird tagged in 20 | 18 whose | tag fel | l off sometime during the winter, which explains the very high (almost 23%) number of missed locations. Because the tags are solar powered, they are likely to miss more points in the winter, when they give up searching for satellites in order to preserve their battery life. It would be interesting to see if this is true. |
+| site | id    | total records | no fix | fix  | % missed   |
+|:-----|:------|:--------------|:-------|:-----|:-----------|
+| MTC  | HAR09 | 1243          | 27     | 1216 | 2.1721641  |
+| MTC  | HAR10 | 928           | 5      | 923  | 0.5387931  |
+| RLK  | HAR04 | 1617          | 20     | 1597 | 1.2368584  |
+| SKA  | HAR05 | 4742          | 71     | 4671 | 1.4972585  |
+| TCR  | HAR07 | 2806          | 637    | 2169 | 22.7013542 |
+| TCR  | HAR08 | 145           | 10     | 135  | 6.8965517  |
+
+HAR07 was the bird tagged in 2018 whose tag fell off sometime during the winter, which explains the very high (almost 23%) number of missed locations. Because the tags are solar powered, they are likely to miss more points in the winter, when they give up searching for satellites in order to preserve their battery life. It would be interesting to see if this is true.
 
 I'll make a histogram plot for each bird with week on the x axis and number of missed fixes on the y axis.
 
@@ -77,7 +67,9 @@ ggplot(aes(x=week, y=n, fill=no.fix)) +
   facet_wrap(~id)
 ```
 
-![](20191204_telemetry_data_exploration_files/figure-markdown_github/unnamed-chunk-3-1.png) There really doesn't seem to be any pattern, though it's hard to tell with such a short time series. What about within a single day?
+![](20191204_telemetry_data_exploration_files/figure-markdown_github/unnamed-chunk-3-1.png)
+
+There really doesn't seem to be any pattern, though it's hard to tell with such a short time series. What about within a single day?
 
 ``` r
 df %>%

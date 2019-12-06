@@ -1,8 +1,7 @@
 ---
 title: "Telemetry data exploration"
 output: 
-  github_document
-  
+  html_notebook
 ---
 
 As a preliminary step to doing real science, I want to do some basic exploration of my telemetry data. I'm interested in things like:
@@ -13,7 +12,7 @@ As a preliminary step to doing real science, I want to do some basic exploration
 * Distribution of points across day and year
 * "Burst" length average/range
 * Number of bursts
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library('lubridate')
 library('tidyverse')
 library('knitr')
@@ -35,6 +34,7 @@ df %>%
   mutate(fix=total-nofix, p=nofix/total * 100) %>%
   kable(col.names=c('site', 'id', 'total records', 'no fix', 'fix', '% missed'), align='l')
 ```
+
 HAR07 was the bird tagged in 2018 whose tag fell off sometime during the winter, which explains the very high (almost 23%) number of missed locations. Because the tags are solar powered, they are likely to miss more points in the winter, when they give up searching for satellites in order to preserve their battery life. It would be interesting to see if this is true.
 
 I'll make a histogram plot for each bird with week on the x axis and number of missed fixes on the y axis.
@@ -52,6 +52,7 @@ ggplot(aes(x=week, y=n, fill=no.fix)) +
   theme(legend.position='bottom') +
   facet_wrap(~id)
 ```
+
 There really doesn't seem to be any pattern, though it's hard to tell with such a short time series. What about within a single day?
 ```{r, message=FALSE}
 df %>%
