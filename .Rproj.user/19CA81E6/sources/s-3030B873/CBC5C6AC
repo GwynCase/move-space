@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1575492403576.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "CBC5C6AC",
+    "lastKnownWriteTime" : 1575590844,
+    "last_content_update" : 1575590844794,
+    "path" : "C:/Users/Gwyn/sfuvault/move-space/src/exploratory/basic_telemetry.R",
+    "project_path" : "src/exploratory/basic_telemetry.R",
+    "properties" : {
+        "cursorPosition" : "47,1",
+        "scrollLine" : "44"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1575574223361.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "529791011",
+    "id" : "83BA4073",
+    "lastKnownWriteTime" : 1575590695,
+    "last_content_update" : 1575590695544,
+    "path" : "C:/Users/Gwyn/sfuvault/move-space/notebooks/20191204_telemetry_data_exploration.Rmd",
+    "project_path" : "notebooks/20191204_telemetry_data_exploration.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "51,132",
+        "scrollLine" : "51",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

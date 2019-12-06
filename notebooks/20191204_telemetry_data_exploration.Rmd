@@ -1,0 +1,52 @@
+---
+title: "Telemetry data exploration"
+output: html_notebook
+---
+
+As a preliminary step to doing real science, I want to do some basic exploration of my telemetry data. I'm interested in things like:
+
+* Number of points/bird/season
+* Step length average/range
+* Turning angle average/range
+* Distribution of points across day and year
+* "Burst" length average/range
+* Number of bursts
+```{r, message=FALSE}
+library('lubridate')
+library('dplyr')
+library('knitr')
+
+df <- read.csv('../data/processed/telem_all.csv', header=TRUE, stringsAsFactors=FALSE)
+
+# Convert times and dates immediately, just to get it over with.
+df$datetime <- ymd_hms(df$datetime, tz='America/Vancouver')
+df$date <- date(df$date)
+
+colnames(df)
+```
+These telemetry tags were programmed to take a location every 15 minutes. The `no.fix` variable indicates whether there was a successful location fix (0) or not (1).
+```{r, message=FALSE}
+df %>%
+  select(site, id, no.fix) %>%
+  group_by(site, id) %>%
+  summarize(total=n(), nofix=sum(no.fix)) %>%
+  mutate(fix=total-nofix, p=nofix/total * 100) %>%
+  kable(col.names=c('site', 'id', 'total records', 'no fix', 'fix', '% missed'), align='l')
+```
+HAR07 was the bird tagged in 2018 whose tag fell off sometime during the winter, which explains the very high (almost 23%) number of missed locations. Because the tags are solar powered, they are likely to miss more points in the winter, when they give up searching for satellites in order to preserve their battery life. It would be interesting to see if this is true.
+
+I'll make a histogram plot for each bird with week on the x axis and number of missed fixes on the y axis.
+```{r, message=FALSE}
+df %>%
+  as_factor(no.fix) %>%
+  count(id, week, no.fix) %>%
+ggplot(aes(x=week, y=n, fill=no.fix)) +
+  geom_bar(position='stack', stat='identity') +
+  scale_fill_manual(values=c('gray', 'red'), name='Fixes per bird',
+                    labels=c('fix', 'no fix')) +
+  labs(y='Number of fixes', x='Week') +
+  theme_classic() +
+  theme(legend.position='bottom') +
+  facet_wrap(~id)
+```
+There really doesn't seem to be any pattern, though it's hard to tell with such a short time series. What about within a single day?
