@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576275083744.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3002359842",
+    "id" : "407AA63B",
+    "lastKnownWriteTime" : 1576366770,
+    "last_content_update" : 1576366770170,
+    "path" : "C:/Users/Gwyn/sfuvault/move-space/src/exploratory/home range.R",
+    "project_path" : "src/exploratory/home range.R",
+    "properties" : {
+        "cursorPosition" : "99,72",
+        "scrollLine" : "77",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

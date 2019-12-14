@@ -1,0 +1,116 @@
+---
+title: "Home Range"
+output: html_notebook
+---
+
+I've already made some 100%, 90%, and 50% MCPs, but of course MCPs aren't that great and I want to see if I can do better.
+
+Here's some things to look at with particular regard to home range:
+* Home range size (MCP) for each bird and each season. This depends on how many points I have, since not all birds have points for each season.
+* How many points I need to calculate a MCP (obviously a preliminary for the previous step)
+* Plot the birds' home range size relative to each other.
+
+```{r, message=FALSE, warning=FALSE, echo=TRUE}
+library('tidyverse')
+library('sf')
+library('rgdal')
+library('adehabitatHR')
+library('ggplot2')
+library('ggspatial')
+library('tibble')
+library('lubridate')
+library('move')
+```
+
+```{r, message=FALSE, echo=TRUE}
+df <- read.csv('../data/processed/telem_all.csv', header=TRUE, stringsAsFactors=FALSE)
+
+# Separate just the Skaiakos points to work with for now.
+ska <- df %>%
+  filter(site == 'SKA') %>%
+  drop_na('lat')
+```
+
+So I can't seem to figure out how to work gracefully with spatial data. I want to make a table showing the area of the different MCPs. First, working with the data as an `sf` object, I have to define the coordinates and the current projection, then transform the data into a different projection I can use to actually measure area, and *then* convert to a spatial data frame to use with the adehabitat package.
+
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+# Make sf object.
+sf.ska <- st_as_sf(ska, coords=c('lon', 'lat'))
+sf.ska <- st_set_crs(sf.ska, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
+
+
+# Transform to UTM so area makes sense.
+sf.ska <- st_transform(sf.ska, "+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs")
+
+
+# Look at area.
+mcp.ska <- sf.ska %>% as_Spatial() %>%
+  mcp.area(percent=seq(20, 100, by=10),
+           unin='m', unout='ha', plotit=FALSE) %>%
+  rownames_to_column(var='name') %>%
+  mutate(percent=as.numeric(name)) %>%
+  rename(area=a)
+
+
+ggplot(mcp.ska, aes(percent, area)) +
+  geom_point() +
+  geom_path() +
+  theme_minimal() +
+  theme(panel.grid=element_line(color='white')) +
+  labs(x='Percent of location points', y='Home range area (ha)', title='Skaiakos')
+```
+
+That worked pretty well for all of Skaiakos points, but what about considering the different periods of the annual cycle?
+
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+# Load in periods from previous notebook.
+winter2 <- interval(ymd(20190101), ymd(20190414))
+incubation <- interval(ymd(20190415), ymd(20190510))
+nestling <- interval(ymd(20190511), ymd(20190710))
+fledgling <- interval(ymd(20190711), ymd(20190901))
+winter1 <- interval(ymd(20190902), ymd(20191231))
+
+# Divide data into periods
+sf.ska.per <- sf.ska %>%
+  mutate(yrls=ymd(paste(2019, month(datetime), day(datetime))),
+         period=case_when(
+           yrls %within% incubation ~ 'incubation',
+           yrls %within% nestling ~ 'nestling',
+           yrls %within% fledgling ~ 'fledgling',
+           yrls %within% winter1 ~ 'winter',
+           yrls %within% winter2 ~ 'winter'
+         )
+  ) %>%
+  dplyr::select(geometry, period) %>%
+  as_Spatial()
+
+# Calculate MCPs
+mcp.by.period <- sf.ska.per %>%
+  mcp.area(percent=seq(20, 100, by=10),
+           unin='m', unout='ha', plotit=FALSE) %>%
+  rownames_to_column(var='name') %>%
+  mutate(percent=as.numeric(name)) %>%
+  dplyr::select(-name)
+
+# Fix formatting so it can actually be graphed.
+mcp.by.period <- pivot_longer(mcp.by.period,
+  cols=c('fledgling', 'nestling', 'winter'), names_to='period')
+
+# Then graph it.
+ggplot(mcp.by.period, aes(percent, value, color=period)) +
+  geom_point() +
+  geom_path() +
+  theme_classic() +
+  theme(panel.grid=element_line(color='white')) +
+  labs(x='Percent of location points', y='Home range area (ha)', title='Skaiakos')
+```
+
+This is really interesting because the fledgling and nestling periods are almost identical for the first 50% of points, and then the fledgling period is larger. This implies that the bird uses the same core area (50%) throughout, but ranges wider during the fledgling period. The problem is that this could just be an artefact of the number of points, since points-wise fledgling > nestling > winter and area-wise fledgling > nestling > winter. Obviously my next step is to see how many points I need to get an accurate MCP.
+
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+ska$datetime <- ymd_hms(ska$datetime, tz='America/Vancouver')
+move.ska <- move(x=ska$lon, y=ska$lat, time=ska$datetime, proj=CRS("+proj=longlat"))
+hrBootstrap(x=move.ska, rep=25, unin='km', unout='km2', plot=FALSE)
+```
+
+I can't get this to print properly, but it looks depressingly like I need around 750-1000 points to have a really good idea of an MCP. Which may mean that I actually have enough data for Skaiakos to see what I saw above, at least with regards to fledgling and nestling points. But it also means I don't yet have enough data to work with most of birds on a period-by-period basis.

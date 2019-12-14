@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1576280792481.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "691418245",
+    "id" : "5B503219",
+    "lastKnownWriteTime" : 1571719605,
+    "last_content_update" : 1571719605,
+    "path" : "C:/Users/Gwyn/sfuvault/Code/space/mcp.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "28,39",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

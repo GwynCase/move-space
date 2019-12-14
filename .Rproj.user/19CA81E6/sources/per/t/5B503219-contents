@@ -1,0 +1,46 @@
+rm(list = ls())   # Clear the workspace.
+gc()              # Perform a garbage collection.
+
+# Set the working directory.
+setwd('C:/Users/Gwyn/sfuvault/Data/Telemetry')
+
+## Load some libraries.
+library(sp)
+library(adehabitatHR)
+library(rgdal)
+
+## Import clean data.
+df <- 
+  read.csv('RubyLake/HAR04_2019-06-22_2019-07-20_CLEAN.csv',
+           stringsAsFactors=FALSE)
+
+site <- 'RubyLake'
+date <- '2019-06-22_2019-07-20'
+id <- 'HAR04'
+
+## Transform into a spatial data frame.
+coordinates(df) <- df[, c('lon', 'lat')]
+proj4string(df) = CRS("+init=epsg:4326")
+
+## Create the polygons for each percentage point.
+# The column specified here should be the one containing the animal ID.
+mcp_est100 <- mcp(df[, 2], percent = 100)
+mcp_est90 <- mcp(df[, 2], percent = 90)
+mcp_est50 <- mcp(df[, 2], percent = 50)
+
+## Save the polygons as shapefiles.
+writeOGR(obj=mcp_est100,
+         dsn=site,
+         layer=paste(id, '_', date, '_100', sep=''), 
+         driver='ESRI Shapefile', overwrite_layer=TRUE)
+
+writeOGR(obj=mcp_est90,
+         dsn=site,
+         layer=paste(id, '_', date, '_90', sep=''), 
+         driver='ESRI Shapefile', overwrite_layer=TRUE)
+
+writeOGR(obj=mcp_est50,
+         dsn=site,
+         layer=paste(id, '_', date, '_50', sep=''), 
+         driver='ESRI Shapefile', overwrite_layer=TRUE)
+
