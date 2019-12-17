@@ -7,17 +7,17 @@
     "folds" : "",
     "hash" : "2374895186",
     "id" : "87828D8F",
-    "lastKnownWriteTime" : 1576366626,
-    "last_content_update" : 1576366626483,
+    "lastKnownWriteTime" : 1576534609,
+    "last_content_update" : 1576534610033,
     "path" : "C:/Users/Gwyn/sfuvault/move-space/notebooks/20191213_homerange.Rmd",
     "project_path" : "notebooks/20191213_homerange.Rmd",
     "properties" : {
         "chunk_output_type" : "inline",
-        "cursorPosition" : "115,379",
-        "scrollLine" : "106",
+        "cursorPosition" : "104,82",
+        "scrollLine" : "89",
         "tempName" : "Untitled1"
     },
-    "relative_order" : 2,
+    "relative_order" : 1,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_markdown"
