@@ -1,0 +1,4 @@
+"0","kud.95 <- kernel.area(kud, percent=95, unin='m', unout='ha') %>%"
+"0","  as.data.frame %>%"
+"0","  `rownames<-`('95% KDEs (ha)')"
+"0","kable(kud.95, format='pandoc', digits=2, caption='2019 nestling season')"

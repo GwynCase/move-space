@@ -1,0 +1,8 @@
+"0","# Convert to a data frame."
+"0","kud.ska.df <- raster(as(kud.ska$HAR05,""SpatialPixelsDataFrame"")) %>%"
+"0","  rasterToPoints() %>%"
+"0","  as.data.frame()"
+"0","# Graph it."
+"0","ggplot(kud.ska.df, aes(x, y, z=ud)) +"
+"0","  geom_contour(color='black', bins=10) +"
+"0","  theme_void()"

@@ -1,0 +1,1 @@
+http://zevross.com/blog/2015/03/30/map-and-analyze-raster-data-in-r/

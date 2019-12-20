@@ -94,5 +94,5 @@ mcp.95 <- sf.df %>%
   `rownames<-`('95% MCPs (ha)')
 
 # Make a table
-kable(mcp.95, digits=2, title='2019 nestling season')
+kable(mcp.95, format='pandoc', digits=2, caption='2019 nestling season')
 ```

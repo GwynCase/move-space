@@ -1,0 +1,3 @@
+"0","# This gets me just one contour line, at 95%"
+"0","getverticeshr(kud.ska, percent=95) %>%"
+"0","  plot()"
