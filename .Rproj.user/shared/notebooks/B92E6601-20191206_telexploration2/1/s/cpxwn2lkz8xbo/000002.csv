@@ -1,0 +1,23 @@
+"0","```r
+# Create intervals.
+winter2 <- interval(ymd(20190101), ymd(20190414))
+incubation <- interval(ymd(20190415), ymd(20190510))
+nestling <- interval(ymd(20190511), ymd(20190710))
+fledgling <- interval(ymd(20190711), ymd(20190901))
+winter1 <- interval(ymd(20190902), ymd(20191231))
+df %>%
+  select(id, site, no.fix, datetime) %>%
+  mutate(yrls=ymd(paste(2019, month(datetime), day(datetime))),
+         period=case_when(
+           yrls %within% incubation ~ 'incubation',
+           yrls %within% nestling ~ 'nestling',
+           yrls %within% fledgling ~ 'fledgling',
+           yrls %within% winter1 ~ 'winter',
+           yrls %within% winter2 ~ 'winter'
+           )
+         ) %>%
+  filter(no.fix==0) %>%
+  group_by(period) %>%
+  summarize(n()) %>%
+  kable(col.names=c('period', 'locations'))
+```"

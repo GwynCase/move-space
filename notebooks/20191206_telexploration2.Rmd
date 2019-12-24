@@ -79,4 +79,3 @@ df %>%
   summarize(n()) %>%
   kable(col.names=c('site', 'id', 'period', 'locations'))
 ```
-

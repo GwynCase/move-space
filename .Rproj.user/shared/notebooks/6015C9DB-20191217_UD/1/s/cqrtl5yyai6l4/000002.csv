@@ -3,6 +3,8 @@
 "0","library('lubridate')"
 "0","library('adehabitatHR')"
 "0","library('sf')"
+"0","library('raster')"
+"0","library('knitr')"
 "0","# Read in the data."
 "0","df <- read.csv('../data/processed/telem_all.csv', "
 "0","               header=TRUE, stringsAsFactors=FALSE) %>%"

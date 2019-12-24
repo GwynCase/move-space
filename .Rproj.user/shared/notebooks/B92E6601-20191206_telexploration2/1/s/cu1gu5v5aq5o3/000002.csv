@@ -1,0 +1,16 @@
+"0","```r
+library('lubridate')
+library('tidyverse')
+library('knitr')
+df <- read.csv('../data/processed/telem_all.csv', header=TRUE, stringsAsFactors=FALSE)
+# Convert times and dates immediately, just to get it over with.
+df$datetime <- ymd_hms(df$datetime, tz='America/Vancouver')
+# Examine the date range for each bird.
+df %>%
+  select(site, id, datetime) %>%
+  group_by(site, id) %>%
+  summarize(first=min(datetime), last=max(datetime), 
+            length=difftime(last, first)) %>%
+  kable(col.names=c('site', 'id', 'first location', 'last location', 
+                      'time period'), digits = 2)
+```"

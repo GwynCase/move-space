@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1577126120367.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1897434828",
+    "id" : "23BFB14E",
+    "lastKnownWriteTime" : 1577155093,
+    "last_content_update" : 1577155093905,
+    "path" : "C:/Users/Gwyn/sfuvault/move-space/notebooks/20191223_homerange_summary.Rmd",
+    "project_path" : "notebooks/20191223_homerange_summary.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "257,0",
+        "scrollLine" : "258",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
