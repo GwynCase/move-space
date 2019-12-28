@@ -1,8 +1,0 @@
-"0","hr <- hr %>%
-  pivot_wider(names_from=period, values_from=value) %>%
-  dplyr::select(id, method, percent, total, 
-                incubation, nestling, fledgling, winter) %>%
-  arrange(id, method, percent)
-"
-"2","Error in inds_combine(.vars, ind_list) : Position must be between 0 and n
-"

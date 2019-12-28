@@ -9,6 +9,8 @@ library('move')
 library('adehabitatHR')
 library('knitr')
 library('kableExtra')
+library('sf')
+library('ggplot2')
 ```
 
 ```{r, warning=FALSE, echo=FALSE}
@@ -19,6 +21,25 @@ df <- read.csv('../data/processed/telem_all.csv',
 
 # Do the datetime thing.
 df$datetime <- ymd_hms(df$datetime, tz='America/Vancouver')
+
+# Create intervals.
+winter2 <- interval(ymd(20190101), ymd(20190414))
+incubation <- interval(ymd(20190415), ymd(20190510))
+nestling <- interval(ymd(20190511), ymd(20190710))
+fledgling <- interval(ymd(20190711), ymd(20190901))
+winter1 <- interval(ymd(20190902), ymd(20191231))
+
+# Assign locations to period.
+df <- df %>%
+  mutate(yrls=ymd(paste(2019, month(datetime), day(datetime))),
+         period=case_when(
+           yrls %within% incubation ~ 'incubation',
+           yrls %within% nestling ~ 'nestling',
+           yrls %within% fledgling ~ 'fledgling',
+           yrls %within% winter1 ~ 'winter',
+           yrls %within% winter2 ~ 'winter'
+         )
+  )
 
 # Do the spatial thing.
 sf.df <- st_as_sf(df, coords=c('lon', 'lat')) %>%
@@ -42,26 +63,6 @@ mcp.all <- mcp.all %>%
 # Fix formatting so it can actually be graphed.
 mcp.all <- pivot_longer(mcp.all,
   cols=c('HAR04', 'HAR05', 'HAR07', 'HAR08', 'HAR09', 'HAR10'), names_to='id')
-
-# Create intervals.
-winter2 <- interval(ymd(20190101), ymd(20190414))
-incubation <- interval(ymd(20190415), ymd(20190510))
-nestling <- interval(ymd(20190511), ymd(20190710))
-fledgling <- interval(ymd(20190711), ymd(20190901))
-winter1 <- interval(ymd(20190902), ymd(20191231))
-
-# Assign locations to period.
-sf.df<- sf.df %>%
-  dplyr::select(id, datetime, geometry) %>%
-  mutate(yrls=ymd(paste(2019, month(datetime), day(datetime))),
-         period=case_when(
-           yrls %within% incubation ~ 'incubation',
-           yrls %within% nestling ~ 'nestling',
-           yrls %within% fledgling ~ 'fledgling',
-           yrls %within% winter1 ~ 'winter',
-           yrls %within% winter2 ~ 'winter'
-         )
-  )
 
 # 50% and 95% MCP for each tag and nestling points.
 mcp.nest <- sf.df %>%
@@ -208,16 +209,7 @@ hr <- hr %>%
 
 # Create some summary stuff.
 df.sum <- df %>%
-  dplyr::select(id, datetime) %>%
-  mutate(yrls=ymd(paste(2019, month(datetime), day(datetime))),
-         period=case_when(
-           yrls %within% incubation ~ 'incubation',
-           yrls %within% nestling ~ 'nestling',
-           yrls %within% fledgling ~ 'fledgling',
-           yrls %within% winter1 ~ 'winter',
-           yrls %within% winter2 ~ 'winter'
-         )
-  ) %>%
+  dplyr::select(id, period) %>%
   group_by(id, period) %>%
   summarize(n=n())
 
@@ -256,5 +248,23 @@ kable(hr2, digits=2, align='c',
   row_spec(c(5, 10, 15, 20, 25, 30), bold=T, background='lightgray') %>%
   add_header_above(c(" "=4, "Period"=4))
 ```
-Hurray!
-[^1]: And by "I" I mean my awesome colleagues and helpers and I.
+This table is missing KDE-method home ranges for those birds with winter points (HAR05 and HAR07). Note the sample size--some estimates are more reliable than others due to rather small numbers of points. Because all birds have some points for the nestling season, I made a summary chart of home range estimates based on all available points and on nestling season points only.
+```{r  warning=FALSE, echo=FALSE}
+ggplot(hr, aes(x=factor(id), y=total)) +
+  geom_jitter(aes(shape=factor(method), color=factor(percent)), size=3, alpha=0.7,
+              position=position_jitter(width=0.2)) +
+  theme_classic() +
+  labs(x='ID', y='Home range size (ha)', title='Total home range',
+  caption='Home range size calculated with all location points available in 2019') +
+  guides(color=guide_legend('Percent'), shape=guide_legend('Method'))
+
+ggplot(hr, aes(x=factor(id), y=nestling)) +
+  geom_jitter(aes(shape=factor(method), color=factor(percent)), size=3, alpha=0.7,
+              position=position_jitter(width=0.2)) +
+  theme_classic() +
+  labs(x='ID', y='Home range size (ha)', title='Nestling season home range',
+       caption='Home range size calculated with nestling season (11 May-10 July) points available in 2019') +
+  guides(color=guide_legend('Percent'), shape=guide_legend('Method'))
+```
+These two graphs are very similar, though the nestling season graph drops the relative size of HAR07's home range. The KDE and MCP estimates are also generally very similar, which is perhaps not surprising in a central-place forager that uses area pretty evenly around its nest.
+[^1]: And by "I" I mean my awesome colleagues and helpers did most of the hard work because they are amazing!

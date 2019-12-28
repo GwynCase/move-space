@@ -4,3 +4,5 @@
 "0","library('adehabitatHR')"
 "0","library('knitr')"
 "0","library('kableExtra')"
+"0","library('sf')"
+"0","library('ggplot2')"

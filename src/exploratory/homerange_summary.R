@@ -269,3 +269,21 @@ hr2 <- bind_rows(hr, df.sum)
 
 hr2 <- hr2 %>%
   arrange(id, method, percent)
+
+############################
+
+ggplot(hr, aes(x=factor(id), y=total)) +
+  geom_jitter(aes(shape=factor(method), color=factor(percent)), size=3, alpha=0.7,
+              position=position_jitter(width=0.2)) +
+  theme_classic() +
+  labs(x='ID', y='Home range size (ha)', title='Total home range',
+  caption='Home range size calculated with all location points available in 2019') +
+  guides(color=guide_legend('Percent'), shape=guide_legend('Method'))
+
+ggplot(hr, aes(x=factor(id), y=nestling)) +
+  geom_jitter(aes(shape=factor(method), color=factor(percent)), size=3, alpha=0.7,
+              position=position_jitter(width=0.2)) +
+  theme_classic() +
+  labs(x='ID', y='Home range size (ha)', title='Nestling season home range',
+       caption='Home range size calculated with nestling season (11 May-10 July) points available in 2019') +
+  guides(color=guide_legend('Percent'), shape=guide_legend('Method'))

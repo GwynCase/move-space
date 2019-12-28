@@ -1,0 +1,6 @@
+"0","Period <- c('Incubation', 'Nestling', 'Fledgling', 'Winter')"
+"0","Start <- c(ymd(20190415), ymd(20190511), ymd(20190711), ymd(20190902))"
+"0","End <- c(ymd(20190510), ymd(20190710), ymd(20190901), ymd(20190414))"
+"0","pers <- data.frame(Period, Start, End)"
+"0","kable(pers) %>%"
+"0","  kable_styling(bootstrap_options='condensed', full_width=F, position='left')"

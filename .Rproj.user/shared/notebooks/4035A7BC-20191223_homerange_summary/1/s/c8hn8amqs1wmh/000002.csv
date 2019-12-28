@@ -1,0 +1,7 @@
+"0","ggplot(hr, aes(x=factor(id), y=total)) +"
+"0","  geom_jitter(aes(shape=factor(method), color=factor(percent)), size=3, alpha=0.7,"
+"0","              position=position_jitter(width=0.2)) +"
+"0","  theme_classic() +"
+"0","  labs(x='ID', y='Home range size (ha)', title='Total home range',"
+"0","  caption='Home range size calculated with all location points available in 2019') +"
+"0","  guides(color=guide_legend('Percent'), shape=guide_legend('Method'))"
