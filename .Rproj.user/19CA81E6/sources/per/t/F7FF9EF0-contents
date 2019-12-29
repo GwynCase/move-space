@@ -1,0 +1,63 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Using KDEs and MCPs I tried to examine how much space a goshawks use, whether the amount of space used varies between individuals and by sex, or by breeding period (nestling, fledgling, etc.). Unfortunately, I don't really have enough data to look at anything other than the nestling period or for all periods, but I do have the groundwork for figuring it out later, once I get the rest of my data.
+
+Those are very basic questions, and I do need to answer them. But the question I'm really more interested in is not how *much* space goshawks use, but *how* they use it, and whether they use different parts of it for different purposes. I think the T-LoCoh method will be very fun for this.
+
+[LoCoh Tutorial](http://www.danaseidel.com/MovEco-R-Workshop/Materials/Day3/LoCoH/)
+
+[Home range plus](https://movementecologyjournal.biomedcentral.com/articles/10.1186/2051-3933-1-2)
+
+[T-LoCoh package](http://tlocoh.r-forge.r-project.org/)
+
+```{r, message=FALSE, warning=FALSE}
+# Load some libraries.
+library('tidyverse')
+library('dplyr')
+library('lubridate')
+library('sf')
+library('tlocoh') # Requires the FNN package also.
+library('sp')
+library('rgdal')
+
+# Read in the data.
+df <- read.csv('../data/processed/telem_all.csv',
+               header=TRUE, stringsAsFactors=FALSE) %>%
+  drop_na('lat')
+
+# Select just one site to work with.
+ska <- df %>% filter(site == 'SKA')
+
+# To make a lxy object, we need datetime and coordinates.
+
+# Do the datetime thing.
+datetime <- ymd_hms(ska$datetime, tz='America/Vancouver')
+
+# Do the spatial thing. This is a bit different than usual.
+ska.sf <- SpatialPoints(ska[ , c('lon', 'lat')],
+  proj4string=CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')) %>%
+  spTransform(CRS('+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs'))
+
+ska.coords <- coordinates(ska.sf)
+colnames(ska.coords) <- c('x', 'y')
+
+# Make a lxy object.
+ska.lxy <- xyt.lxy(xy=ska.coords, dt=datetime, id='HAR05',
+                   proj4string=CRS('+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs'))
+
+# Look at some stuff.
+summary(ska.lxy)
+```
+I can't show the `plot` output bc reasons, but it's really cool.
+```{r echo=TRUE}
+hist(ska.lxy)
+```
+The median time step of 16 minutes shows that generally, the tag isn't missing too many points, since it's supposd to take a point every 15 minutes. The step length and velocity also show that the bird mostly travels short distances at low speed. That may be biased downward because of roosting behavior.
+## Action items
+
+* Compare male and female home ranges.
+* Compare coastal and transition zone home ranges.
+* Locate nighttime roost sites.

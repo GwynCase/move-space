@@ -5,7 +5,7 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "2608764556",
     "id" : "731D5FC7",
     "lastKnownWriteTime" : 1577574562,
     "last_content_update" : 1577574562605,
@@ -13,8 +13,8 @@
     "project_path" : "notebooks/20191223_homerange_summary.Rmd",
     "properties" : {
         "chunk_output_type" : "inline",
-        "cursorPosition" : "8,23",
-        "scrollLine" : "0",
+        "cursorPosition" : "46,67",
+        "scrollLine" : "32",
         "tempName" : "Untitled1"
     },
     "relative_order" : 4,
