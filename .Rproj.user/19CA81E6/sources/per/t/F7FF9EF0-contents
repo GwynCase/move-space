@@ -19,7 +19,7 @@ library('tidyverse')
 library('dplyr')
 library('lubridate')
 library('sf')
-library('tlocoh') # Requires the FNN package also.
+library('tlocoh') # Requires the FNN package to be installed.
 library('sp')
 library('rgdal')
 
@@ -56,6 +56,47 @@ I can't show the `plot` output bc reasons, but it's really cool.
 hist(ska.lxy)
 ```
 The median time step of 16 minutes shows that generally, the tag isn't missing too many points, since it's supposd to take a point every 15 minutes. The step length and velocity also show that the bird mostly travels short distances at low speed. That may be biased downward because of roosting behavior.
+
+The next step apparently is to check for "bursts", which are a bit different than what is usually referred to with that term and are artefacts of sampling (ie GPS glitches) that result in too-dense clusters of points.
+
+```{r echo=TRUE}
+lxy.plot.freq(ska.lxy, cp=T)
+```
+
+Aaaand I have no idea to interpret this. But it looks like all of my frequencies fall between 0.93 and 1.0, so I think that's ok. I also tried thinning by frequency (with sampling frequency of 960 s/16 min, since that's the median frequency) and it made no difference.
+
+To start with I'm going to ignore time (s=0) and use the k method (number of nearest neighbords) just to get a feel for how this works. I'll use a range of k values to see what looks nicest.
+```{r echo=TRUE}
+# Create a lhs object with k and s defined.
+ska.lhs <- lxy.lhs(ska.lxy, k=3*3:8, s=0)
+
+# Add isopleths.
+ska.lhs <- lhs.iso.add(ska.lhs)
+
+plot(ska.lhs, iso=T, k=9,ufipt=F)
+plot(ska.lhs, iso=T, k=12, ufipt=F)
+plot(ska.lhs, iso=T, k=15, ufipt=F)
+plot(ska.lhs, iso=T, k=18, ufipt=F)
+plot(ska.lhs, iso=T, k=21, ufipt=F)
+plot(ska.lhs, iso=T, k=24, ufipt=F)
+```
+I think a k of 18 or 21 looks nice. I can also try a few other things, looking for plots with a large jump between k values or a high edge-area ratio.
+```{r echo=TRUE}
+lhs.plot.isoarea(ska.lhs)
+lhs.plot.isoear(ska.lhs)
+ska.lhs.k18 <- lhs.select(ska.lhs, k=18)
+```
+18 and 21 still look nice, so I'll go with k=18.
+
+So far I've been ignoring time, but I can't do that forever. So now I need to pick a s value. Based on space-time equity and using the `sfinder` function, I can see that i I'm interested in daily foraging behavior, then a s of 0.007316 seems appropriate.
+```{r echo=TRUE}
+s.find <- lxy.plot.sfinder(ska.lxy, delta.t=3600*c(12,24,36,48,54,60))
+s.parity.24hrs <- s.find[[1]]$svals[["86400"]]
+median(s.parity.24hrs)
+```
+So then if I run it all again with a s value as well as a k value.
+```{r echo=TRUE}
+```
 ## Action items
 
 * Compare male and female home ranges.
