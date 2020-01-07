@@ -1,3 +1,0 @@
-ska.lhs <- ska.lhs.
-summary(ska.lhs)
-plot(ska.lhs, iso=T, iso.sort.metric="ecc")
