@@ -68,4 +68,28 @@ median(s.parity.24hrs)
 # Add s value to hull object.
 ska.lxy <- lxy.nn.add(ska.lxy, s=0.007, k=18)
 
-summary(ska.lxy)
+# Then make lhs object.
+ska.lhs.time <- lxy.lhs(ska.lxy, k=3*3:8, s=0.007)
+# Looks like the larger k values threw an error about unsuitable nearest neighbor sets with the given s value.
+
+# Add isopleths.
+ska.lhs.time <- lhs.iso.add(ska.lhs.time)
+
+# And plot.
+plot(ska.lhs.time, iso=TRUE)
+ska.lhs.time.k18 <- lhs.select(ska.lhs.time, k=18)
+
+plot(ska.lhs.time.k18, iso=TRUE)
+plot(ska.lhs.k18, iso=TRUE)
+
+###### On to part 2
+
+# Look at ellipses.
+ska.lhs.time.k18 <- lhs.ellipses.add(ska.lhs.time.k18)
+plot(ska.lhs.time.k18, ellipses=TRUE)
+
+plot(ska.lhs.time.k18, hulls=T, ellipses=T, ptid="auto")
+
+
+######### Intermission: find a
+auto.a(ska.lxy, meth='nn', )

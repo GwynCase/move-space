@@ -3,7 +3,7 @@
 "0","library('dplyr')"
 "0","library('lubridate')"
 "0","library('sf')"
-"0","library('tlocoh') # Requires the FNN package also."
+"0","library('tlocoh') # Requires the FNN package to be installed."
 "0","library('sp')"
 "0","library('rgdal')"
 "0","# Read in the data."

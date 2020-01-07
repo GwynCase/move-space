@@ -1,1 +1,1 @@
-"0","plot(ska.lhs, iso=T, k=24, allpts=T, cex.allpts=0.1, col.allpts=""gray30"", ufipt=F)"
+"0","plot(ska.lhs, iso=T, k=18, ufipt=F)"
