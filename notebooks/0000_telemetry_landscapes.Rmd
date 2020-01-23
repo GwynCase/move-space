@@ -1,0 +1,7 @@
+---
+title: "Annotated bibliography: telemetry & landscapes"
+output: html_notebook
+---
+
+### Kudo et al. 2005. - Japan, mixed forest/ag/urban
+Located territories (**n=36**) and radiotagged males (n=18) to determine actual home range size using 95% MCPs.

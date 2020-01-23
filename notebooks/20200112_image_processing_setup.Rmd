@@ -1,0 +1,107 @@
+---
+title: "Image processing setup"
+output: html_notebook
+---
+
+I have a ton of photos from nest cameras, and I need to figure out how to process them efficiently.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Load some libraries.
+library('tidyverse')
+library('exiftoolr')
+library('lubridate')
+library('purrr')
+
+# This installs exiftool, which lets me view EXIF data.
+# install_exiftool()
+
+# Make a list of all the files in the directory.
+TMC.files <- list.files('D:/RECONYX/TwentyMileCreek/100RECNX_TwentyMile', full.names=TRUE)
+
+# Extract EXIF data from the files and make a dataframe.
+TMC.photos <- exif_read(TMC.files,
+                    tags=c('filename', 'CreateDate', 'SerialNumber'))
+
+# Make it pretty.
+photos <- TMC.photos %>%
+  dplyr::select(filename=FileName, datetime=CreateDate,
+                serial=SerialNumber) %>%
+  mutate(site='TMC')
+
+# Do the datetime thing.
+photos$datetime <- ymd_hms(photos$datetime, tz='America/Vancouver')
+
+# When was it recording?
+photos %>% summarize(first=min(datetime), last=max(datetime),
+          length=difftime(last, first))
+```
+That's pretty awesome because we were worried the camera memory would fill or the batteries would run out, but it looks like this one recorded the whole time.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# How many photos per day?
+photos %>%
+  mutate(datetime=floor_date(datetime, unit='days')) %>%
+  group_by(datetime) %>%
+  summarize(n())
+```
+Well shoot, that's a lot of photos. Let's try this whole process with my "sample" photo set so I don't screw stuff up.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Make a list of all the files in the directory.
+sample.files <- list.files('../data/raw/TMC', full.names=TRUE)
+
+# Extract EXIF data from the files and make a dataframe.
+sample.exif <- exif_read(sample.files,
+                    tags=c('filename', 'CreateDate', 'SerialNumber'))
+
+# Make it pretty.
+sample.photos <- sample.exif %>%
+  dplyr::select(filename=FileName, datetime=CreateDate,
+                serial=SerialNumber) %>%
+  mutate(site='TMC')
+
+# Export as csv.
+write.csv(sample.photos, file='../data/interim/sample_photos.csv',
+          row.names=FALSE)
+```
+I took the csv, loaded it in sheets, and filled it out. Then I re-loaded it into R to see how it works.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Load in the filled csv.
+# Select only those images that are "interesting."
+df <- read.csv('../data/processed/sample_photos_cooked.csv', header=TRUE,
+               stringsAsFactors=FALSE) %>%
+  filter(interest != '')
+
+# Get the filenames of the interesting photos.
+interest <- sample.exif %>%
+  filter(FileName %in% df$filename) %>%
+  dplyr::select(SourceFile)
+
+# Transfer the interesting photos to a new folder.
+file.copy(from=interest$SourceFile,
+          to='../data/raw/TMC/interest', overwrite=TRUE)
+```
+That seems to work! To go forward for real, then, I need to split my real csv into reasonable chunks for filling.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Add columns to dataframe for data entry.
+photos <- photos %>%
+  add_column(interest='', live.chicks='', class='', family='',
+             genus='', species='', common='', comments='')
+
+# Make a folder for all this.
+# Happens just once.
+# dir.create('../data/interim/n_cam_csv')
+
+# Save the big csv, just in case.
+write.csv(photos, file='../data/interim/n_cam_csv/TMC_photos.csv',
+          row.names=FALSE)
+
+# Now split the data frame by week.
+cut <- split(df, week(df$date))
+
+# And save each week at its own csv.
+walk(seq_along(cut), function(x){
+  write.csv(cut[[x]],
+           file=paste('../data/interim/n_cam_csv/', 'TMC_photos', '_',
+                      as.character(x), '.csv', sep=''),
+           row.names=FALSE)
+})
+
+```

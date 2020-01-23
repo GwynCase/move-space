@@ -1,0 +1,85 @@
+---
+title: "Landscape variables"
+output: html_notebook
+---
+
+Part of this chapter involves using landscape metrics as predictors of diet. Which means I need to choose some landscape metrics I think are interesting. Something important for me to keep in mind is that I should pick variables that are useful at multiple scales. For example, I might want to know if the age of stand affects whether a NOGO hunts in that stand, and I might also want to know if the amount of forest of a certain age affects whether a NOGO breeds successfully in that territory.
+
+A very good starting point is the NOGO habitat model, which was created by Mahon, McLaren, and Doyle. There are actually two different models, one for nesting habitat and one for foraging habitat, and they are habitat suitability index (HSI) models. The foraging habitat model includes:
+
+* **Stand age & height**
+    This is actually a proxy for stand structure, which is really the important variable but is difficult to measure and not available in GIS databases.
+    
+* **Forest composition**
+    ie dominant tree species. Relevant because certain prey species are more abundant in certain forest types.
+    
+* **BEC variant**
+    because NOGO are observed to use some but generally not others (ie CWH). The authors admit they're not sure why this is.
+    
+* **Non-forested**
+    Habitat that is not forest at all and therefore (supposedly) not used by NOGO may still be used as habitat by NOGO prey
+    
+Included in the nesting habitat model but surprisingly not included in the foraging habitat model is
+
+* **Distance from edge** There is lots of evidence NOGO don't like to nest near forest edges, especially hard ones. However, edge could also affect (maybe benefit) prey spp.
+
+Two variables were discussed for the nesting habitat model but not even considered for the foraging model:
+
+* **Canopy closure** commonly recognized as important nesting habitat variable, but not readily available in GIS databases. Also likely important for foraging, since it's related to subcanopy flyways used for hunting.
+
+* **Patch size** not included in nesting habitat model because "more appropriately captured by edge" and not included in foraging habitat model, either.
+
+Forest structure (or similar, ie age x height, average tree diameter, etc.) are pretty standard for foraging habitat studies, along with canopy closure. But some studies have gotten adventurous.
+
+In Japan, Kudo et al. (2005) found the amount of edge (200 m on both sides) between forest and open space (ie farms, golf courses, etc.) had a positive affect on NOGO occupancy. Unfortunately, although Kudo used telememtry they didn't do any analysis of the points themselves. Bright-Smith & Mannon (1994) found some NOGO selected core area greater than was available. Donner et al. (2013) in Wisconsin considered roads.
+
+In light of that, stand structure is definitely something I'll need to look into. Whether I use age x height or basal area or what will depend on what data are available. 
+
+Forest composition and BEC variant seem... a little overlapping. Forest composition is to some degree a subset of BEC variant. For example, if NOGO avoid using CWH zones, then they also avoid using western hemlock-dominated stands. Non-forested can also be folded into forest composition by making it some kind "land cover type" ie hemlock stand or wetland or urban or whatever.
+
+Edge is super interesting because the kind of edge is likely really important. So rather than have some kind of distance to edge or edge density or whatever, I'd like to look at something like edge contrast.
+
+But edge could still be useful, in terms of whether NOGO are selecting for edges or for patch core.
+
+I'd like to look at some metric of how these all fit together, like contagion or evenness or dominance--something that will tell me whether a territory is mostly one kind of thing or actually a lot of different things and whether they're packed together or mixed up.
+
+So in summary, I need landscape variables for:
+
+* cover type/proportion cover type
+* structural class/proportion structural class
+* edge *type*
+* distance from edge/core
+* evenness, contagion, or similar
+
+Fragstats breaks down metrics into categories:
+
+* Area & edge
+    * Class area would be helpful, ie, does lots of spruce mean lots of squirrels and lots of scree mean lots of woodrats?
+    * It seems unlikely that patch area (ie mean patch area) would be helpful... it's hard to imagine any prey species being limited by space.
+    * Connectivity & continuity don't seem like they would be very relevant.
+    * Edge would be very, very helpful, but I'm not sure if it would be better to measure edge or measure core area.
+* Patch shape
+    * I'm not sure any shape metrics will be helpful, since it probably just makes more sense to use some measure of edge.
+* Core area
+    * Total core area per class (TCA) or core area as a percent of landscape (CPLAND)
+* Contrast
+    * Contrast-weighted edge density
+* Aggregation/texture
+    * I don't think isolation is particularly relevant
+    * Contagion would be really really interesting
+* Richness & evenness
+    * Richness AND evenness? Or just diversity?
+
+OK, but before I get too excited about what to do in Fragstats I need to know what's going in to Fragstats.
+
+* Obviously the model output itself. Both the foraging and nesting model, since it's possible the nesting model is actually a really good predictor high quality foraging habitat. In other words, that NOGO would prefer all habitat to look like nesting habitat, but they put their nest in the best spot and for the rest they'll  take what they can get.
+* BEC zone/subvariant. This captures broader-scale characteristics, like is one site generally drier than another, or more mountainous than another, or just more varied than another, overall. This has nothing to do with land management (ie, you can't replant CWH or IDF or whatever) but rather asks whether NOGO in different areas can all be managed the same.
+* Land cover. This is where it gets tricky because I need to pick just a few variables in order to keep things simple. I think...
+    * Old-growth forest
+    * Mature forest
+    * Young forest (including stand initiation/regen??)
+    * Hardwood
+    * Open (ie alpine, talus, meadow, wetland, ag)
+    * Water (ie rivers, lakes, ocean)
+    * Urban
+    * Cut block? This could be different than other "open" classes because it is artificial vs natural and has an unusually sharp edge

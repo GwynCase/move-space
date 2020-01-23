@@ -1,0 +1,7 @@
+"0","  write.csv(cut[[x]],
+           file=paste('../data/interim/n_cam_csv', 'TMC_photos', '_',
+                      as.character(x), '.csv', sep=''),
+           row.names=FALSE)
+"
+"2","Error in is.data.frame(x) : object 'x' not found
+"

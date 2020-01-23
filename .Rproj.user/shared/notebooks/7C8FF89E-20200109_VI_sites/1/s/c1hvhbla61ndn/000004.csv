@@ -1,0 +1,3 @@
+"0","# Which ones had active nests?"
+"0","vi.nest.assess.2018 %>% dplyr::select(SiteName, NestStatus) %>%"
+"0","  filter(NestStatus == 'Active')"

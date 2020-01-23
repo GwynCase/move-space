@@ -24,9 +24,16 @@ output: html_notebook
     2) from nest cameras
     3) record timestamps of deliveries
 4. Quantify richness and evenness of diet.
+    1) Proportion mammalian:avian
+    2) Identify key species (dominant in # and/or biomass)
 
 ### 3: Model landscape and habitat selection as predictors of diet.
 1. Compile landscape data.
+    1) Compile nest sites (SC & VI).
+    2) Select landscape metrics.
+        ... edge (hardness), patch size, structure (age/height)...
+        both nest site-type and foraging habitat-type
+    3) Extract landscape data.
 2. Examine variation in diet across gradient of precipitation (coast/transition)
 3. Model predictors of diet.
 4. Trackback deliveries to kill sites.
@@ -35,3 +42,8 @@ output: html_notebook
 ### 4. Write!
 1. Write methods.
 2. ...and everything else.
+
+### 5. Action items
+* 20200108 - Select landscape variables by next week's meeting.
+* ~~20200108 - Set up prey analysis workflow for next week.~~
+* ~~20200108 - Make potential prey list by next week.~~

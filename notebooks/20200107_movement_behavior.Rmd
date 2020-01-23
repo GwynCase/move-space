@@ -1,0 +1,185 @@
+---
+title: "Movement behavior"
+output: html_notebook
+---
+```{r include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warnings=FALSE)
+```
+
+Most NOGO telemetry studies haven't tried to figure out what the bird is doing at a given location, and when they have they often haven't been very methodical about it. And with good reason! But that means space-use studies essentially assume birds use all parts of their territory in the same way, and that because they are often located near the nest, they must *use* the area near the nest often. But I think there's a chance that the area around the nest is mostly used for "commuting" as the male brings prey back to the female and then quickly leaves to continue hunting in more peripheral areas. That means that in order to figure out where the hunting is atually happening, I have to differentiate between foraging, resting, and traveling behaviors.
+
+[A "short" guide to parameter selection](https://cran.r-project.org/web/packages/moveHMM/vignettes/moveHMM-starting-values.pdf)
+
+```{r message=FALSE, echo=TRUE, warning=FALSE}
+# Load some libraries.
+library('tidyverse')
+library('lubridate')
+library('sp')
+library('moveHMM')
+library('suncalc')
+
+# Read in the data.
+df <- read.csv('../data/processed/telem_all.csv',
+               header=TRUE, stringsAsFactors=FALSE) %>%
+  drop_na('lat')
+
+# Select just one site to work with.
+ska <- df %>% filter(site == 'SKA')
+
+# Convert to sp and specify coordinates.
+coordinates(ska) <- c('lon', 'lat')
+
+# Define current projection.
+proj4string(ska) <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
+# Convert to UTM.
+ska <- spTransform(ska, CRS('+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs'))
+
+# Rename from lat/lon to x/y.
+colnames(ska@coords) <- c('x', 'y')
+
+# Return to data frame because that's what moveHMM wants.
+ska <- as.data.frame(ska)
+
+# Send to moveHMM.
+data <- prepData(ska, type="UTM", coordNames=c('x','y'))
+
+# Check it out.
+hist(data$step)
+```
+Mostly very short step lengths. Apparently a very lazy bird. I can also look at turning angle.
+```{r message=FALSE, echo=TRUE}
+hist(data$angle)
+```
+Maybe I'm imagining things, but it looks like the bird spends a lot of time either flying straight (0) or making pretty sharp turns (2.5), but not making intermediate turns.
+
+The first thing I tried was using the default parameter values from the vignette, but those didn't work at all. 
+```{r message=FALSE, echo=TRUE, error=FALSE}
+# First, check if there are any steps with a length of 0.
+whichzero <- which(data$step==0)
+length(whichzero)/nrow(data)
+
+# Define parameters.
+
+# Mean step length.
+mu0 <- c(250, 750)
+# Step length standard deviation. Can start with same as mean.
+sigma0 <- c(250, 750)
+# Step zero-mass, the proportion of steps = 0.
+zeromass0 <- c(0.0002, 0.00001)
+# Combine into first parameter.
+stepPar0 <- c(mu0,sigma0,zeromass0)
+
+# Mean angle.
+angleMean0 <- c(pi, 0)
+# Angle concentration.
+kappa0 <- c(0.5, 3) 
+# Combine into second parameter.
+anglePar0 <- c(angleMean0,kappa0)
+
+# Build model.
+m <- fitHMM(data=data, nbStates=2, stepPar0=stepPar0, anglePar0=anglePar0,
+            formula=~1)
+m
+```
+So this actually seems to have worked. It nicely picked out all of the roosting sites. The problem is that it lumped everything else together. So probably a 3-state model is what's needed.
+```{r message=FALSE, echo=TRUE, error=FALSE}
+# Mean step length.
+mu0.3 <- c(5, 250, 1000)
+# Step length standard deviation. Can start with same as mean.
+sigma0.3 <- c(5, 500, 500)
+# Step zero-mass, the proportion of steps = 0.
+zeromass0.3 <- c(0.002, 0.0001, 0.00001)
+# Combine into first parameter.
+stepPar0.3 <- c(mu0.3, sigma0.3, zeromass0.3)
+
+# Mean angle.
+angleMean0.3 <- c(pi, pi/2, 0)
+# Angle concentration.
+kappa0.3 <- c(0.1, 0.5, 3) 
+# Combine into second parameter.
+anglePar0.3 <- c(angleMean0.3, kappa0.3)
+
+# Fit the model.
+m3 <- fitHMM(data=data, nbStates=3, stepPar0=stepPar0.3, anglePar0=anglePar0.3, formula=~1)
+```
+Well, the 3 state model doesn't seem to work as well. I'll try sifting out the nighttime points first and see if using the daytime points only works better.
+```{r message=FALSE, echo=TRUE, error=FALSE}
+# Select just one site to work with.
+ska <- df %>% filter(site == 'SKA')
+
+# Do the datetime thing.
+ska$date <- date(ska$date)
+ska$datetime <- ymd_hms(ska$datetime)
+
+# Get sunrise and sunset times.
+ska <-  getSunlightTimes(data=ska, keep=c('sunrise', 'sunset'), 
+                        tz='America/Vancouver')
+
+# Designate points as day or night.
+ska$diff.rise <- as.numeric(difftime(ska$datetime, 
+                                     ska$sunrise, units='hours'))
+ska$diff.set <- as.numeric(difftime(ska$datetime, 
+                                    ska$sunset, units='hours'))
+
+ska$t.period <- case_when(
+  ska$diff.rise >= 0 & ska$diff.set <= 0 ~ 'day',
+  TRUE ~ 'night'
+)
+
+ska <- ska %>% filter(t.period == 'day')
+
+# Convert to sp and specify coordinates.
+coordinates(ska) <- c('lon', 'lat')
+
+# Define current projection.
+proj4string(ska) <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
+# Convert to UTM.
+ska <- spTransform(ska, CRS('+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs'))
+
+# Rename from lat/lon to x/y.
+colnames(ska@coords) <- c('x', 'y')
+
+# Return to data frame because that's what moveHMM wants.
+ska <- as.data.frame(ska)
+
+# Send to moveHMM.
+data <- prepData(ska, type="UTM", coordNames=c('x','y'))
+```
+Now that that's all done, I'll try fitting another model.
+```{r message=FALSE, echo=TRUE, error=FALSE}
+# First, check if there are any steps with a length of 0.
+whichzero <- which(data$step==0)
+length(whichzero)/nrow(data)
+
+# Mean step length.
+mu0 <- c(1000, 2000)
+# Also tried: 250 & 750, 500 & 1500
+
+# Step length standard deviation. Can start with same as mean.
+sigma0 <- c(1000, 250)
+# Also tried: 250 & 250
+
+# Step zero-mass, the proportion of steps = 0.
+zeromass0 <- c(0.0004, 0)
+
+# Combine into first parameter.
+stepPar0 <- c(mu0, sigma0, zeromass0)
+
+# Mean angle.
+angleMean0 <- c(pi, 0)
+
+# Angle concentration.
+kappa0 <- c(0.001, 5) 
+# Also tried: 0.5 & 3, 0.1 & 5
+
+# Combine into second parameter.
+anglePar0 <- c(angleMean0, kappa0)
+
+# Build model.
+m <- fitHMM(data=data, nbStates=2, stepPar0=stepPar0, anglePar0=anglePar0,
+            formula=~1)
+m
+```
+None of these work. Or rather, even with the night points removed they still only identify little clusters of points, not larger movements. So maybe `moveHMM` just isn't going to work for me.

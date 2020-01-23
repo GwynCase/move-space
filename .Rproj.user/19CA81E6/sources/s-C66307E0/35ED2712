@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1579815552228.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "35ED2712",
+    "lastKnownWriteTime" : 1578945757,
+    "last_content_update" : 1578945757,
+    "path" : "C:/Users/Gwyn/sfuvault/move-space/notebooks/20200112_image_processing_setup.Rmd",
+    "project_path" : "notebooks/20200112_image_processing_setup.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "99,9",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

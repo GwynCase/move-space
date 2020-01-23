@@ -1,0 +1,117 @@
+---
+title: "VI Sites"
+output: html_notebook
+---
+
+Some Vancouver Island sites may be useful to, but I have to figure out which ones they are.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Load some libraries.
+library('tidyverse')
+library('lubridate')
+
+vi.2018 <- read.csv('../data/external/VI_surveydata_2018.csv',
+               header=TRUE, stringsAsFactors=FALSE)
+
+colnames(vi.2018)
+```
+A nest assessment is conducted when an old (previously known) nest is checked or a new nest is discovered. A "new" nest could be several years old, or it could be fresh and actively being used. Either way, the presence of a nest assessment means that there is (or was) a territory there, and it can be pretty well established whether the territory was active or not. While an observation of a NOGO does imply there is a territory, without a nest (active or otherwise) there's no way to know whether the bird was breeding or not.
+```{r message=FALSE, echo=TRUE, warning=FALSE}
+# The first column has a strange name, fix that.
+vi.2018 <- rename(vi.2018, SiteName=1)
+
+# Select only observations of nests.
+vi.nest.assess.2018 <- vi.2018 %>%
+  filter(NestAssess == 'Yes')
+
+nrow(vi.nest.assess.2018)
+n_distinct(vi.nest.assess.2018$SiteName)
+```
+So in 2018 there were 66 nests checked at 23 different sites. They are:
+```{r message=FALSE, echo=TRUE, warning=FALSE}
+# List sites at which nest assessments were conducted.
+distinct(vi.nest.assess.2018, SiteName)
+
+# Which ones had active nests?
+vi.nest.assess.2018 %>% dplyr::select(SiteName, NestStatus) %>%
+  filter(NestStatus == 'Active')
+```
+Only 3! Well, what I really need to know is which sites were checked in both 2018 and 2019. So I can load in the data from 2019 and do all the same steps.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Load 2019 data.
+vi.2019 <- read.csv('../data/external/VI_surveydata_2019.csv',
+               header=TRUE, stringsAsFactors=FALSE)
+
+colnames(vi.2019)
+
+# Also has weird first column name.
+vi.2019 <- rename(vi.2019, SiteName=1)
+
+# Problem... different variable names.
+vi.2019 %>% group_by(Nest.Assessment) %>%
+  summarize(n())
+```
+The NAs are a problem because I don't know if they represent an observation that has nothing to do with a nest or whether the surveyor just forgot to check a box for a nest assessment. But if I use nest status instead, I know I'll be getting only the observations about nests.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Select only observations of nests.
+vi.nest.assess.2019 <- vi.2019 %>% filter(Nest.Status != "")
+
+# List sites at which nest assessments were conducted.
+distinct(vi.nest.assess.2019, SiteName)
+
+# Which ones had active nests?
+vi.nest.assess.2019 %>% dplyr::select(SiteName, Nest.Status) %>%
+  filter(Nest.Status == 'Active')
+```
+Again, only 3. But a different 3! Let's see if there are any in common.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+sites.b <- intersect(vi.nest.assess.2018$SiteName,
+                     vi.nest.assess.2019$SiteName)
+sites.b
+```
+VICTORY!!! That's 7 sites! What about voucher collections? The options are CR = Carcass/prey remains, WW = whitewash, FE = feather, RP = regurgitated pellet, and ES = eggshell.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+voucher.2019 <- vi.2019 %>% filter(Sign.Type %in% c('RP', 'DC')) %>%
+  distinct(vi.2019, SiteName)
+
+voucher.2018 <- vi.2018 %>% filter(SignType == 'FE') %>%
+  distinct(vi.2019, SiteName)
+
+voucher.sites <- bind_rows(voucher.2019, voucher.2018, .id='year')
+
+voucher.sites
+```
+These are all of the sites at which vouchers were collected. Did any of them also have nest checks? Or, more helpfully, did any have vouchers but no nest checks?
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+nest.assess <- union(vi.nest.assess.2018$SiteName,
+                     vi.nest.assess.2019$SiteName)
+
+setdiff(voucher.sites$SiteName, nest.assess)
+```
+So, which of these do I want? Well, I want all the ones with both vouchers and nest checks. And I want all the ones that were surveyed in both 2018 and 2019. The problem is that it looks like none of those had active nests in either year. So I should also check to see if there's other evidence the territory was active, like juveniles seen in the territory.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+sites.2019 <- vi.2019 %>% filter(Nest.Status != "") %>%
+  mutate(a.2019=case_when(Nest.Status == 'Active' ~ 1,
+                          TRUE ~ 0)) %>%
+  mutate(v.2019=case_when(Sign.Type %in% c('RP', 'DC', 'CR', 'RP') ~ 1,
+                          TRUE ~ 0)) %>%
+  group_by(SiteName) %>%
+  summarise(a.2019=max(a.2019), v.2019=max(v.2019)) %>%
+  dplyr::select(SiteName, a.2019, v.2019)
+
+sites.2018 <- vi.2018 %>% filter(NestStatus != "") %>%
+  mutate(a.2018=case_when(NestStatus == 'Active' ~ 1,
+                          TRUE ~ 0)) %>%
+  mutate(v.2018=case_when(SignType %in% c('RP', 'DC', 'CR', 'RP') ~ 1,
+                          TRUE ~ 0)) %>%
+  group_by(SiteName) %>%
+  summarise(a.2018=max(a.2018), v.2018=max(v.2018)) %>%
+  dplyr::select(SiteName, a.2018, v.2018)
+
+sites <- bind_rows(sites.2018, sites.2019) %>%
+  group_by(SiteName) %>%
+  summarise(a.2018=max(a.2018), v.2018=max(v.2018),
+            a.2019=max(a.2019), v.2019=max(v.2019)) %>%
+  replace_na(list(a.2018=NA, v.2018=0, a.2019=NA, v.2019=0))
+```
+Whew! After a lot of trial and error, I have a table of all the sites that had nest checks at least once in the past two years, indicating whether they were active and whether a voucher was collected.
