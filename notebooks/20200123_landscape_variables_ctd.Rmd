@@ -17,3 +17,11 @@ The HSI-f is a simple model which does not include a number of variables that ma
 6. Open (including meadows, alpine, scree/talus, wetlands, agriculture)
 7. Urban
 8. Water (rivers, lakes, and ocean)
+
+## Wednesday meeting
+
+* Maybe switch agriculture to urban category to capture human activity and exurban nature of urban development within NOGO habitat.
+
+* Define age classes for old/mature/young.
+
+* Work on selecting landscape metrics.

@@ -1,0 +1,124 @@
+---
+title: "Diet exploration, ctd"
+output: html_notebook
+---
+
+Annoyingly, my last notebook somehow emptied itself and all of my work in the .Rmd is lost... though the .nb.html intact, at least. Still, the whole notebook was clogged up with cleaning the data so it's not bad to start over.
+
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+# Load some libraries.
+library('tidyverse')
+library('lubridate')
+library('ggplot2')
+library('RColorBrewer')
+
+# Read in the csv. This is the short one.
+df <- read.csv('../data/processed/TMC_photos_short.csv', header=TRUE, stringsAsFactors=FALSE)
+
+# Sort out just the deliveries.
+delivery <- df %>% 
+  filter(interest == 'newprey' | interest == 'delivery')
+
+# Get first and last deliveries.
+del.first <- delivery %>% 
+  summarize(first(datetime)) %>% 
+  ymd_hms()
+
+del.last <- delivery %>% 
+  summarize(last(datetime)) %>% 
+  ymd_hms()
+
+# A quick summary.
+delivery %>% group_by(interest) %>% 
+  summarize(n())
+```
+So between `r date(del.first)` and `r date(del.last)` there were 47 deliveries, of which the camera caught a little of half of actually being delivered. Not all have been identified, so that's a bit of a problem, but I'll deal with that later. Let's look at just the ones that were identified.
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+prey <- df %>%
+  filter(class != '')
+
+prey %>% group_by(class, family, genus) %>% 
+  summarize(n())
+```
+Oh, I see what happened, it's just an artefact of the spreadsheet system. There are only 5 deliveries that went completely unmarked. Otherwise, this worked pretty well! Oh, I can see there's a spelling mistake...
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+prey <- prey %>% 
+  mutate(genus = replace(genus, genus=='Tamasciurus', 'Tamiasciurus'))
+
+prey %>%  
+  group_by(class, family, genus) %>% 
+  summarize(n())
+```
+That's better! This could be a bit more pretty and visual.
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+prey.table <- prey %>%  
+  mutate(class=replace(class, class=='U', 'Unknown'),
+         genus=replace(genus, genus=='U', 'Unknown')) %>%
+  group_by(class, family, genus) %>% 
+  summarize(n()) %>%
+  rename(count=4)
+
+ggplot(prey.table, aes(fill=genus, y=count, x=class)) + 
+  geom_bar(position='stack', stat='identity') +
+  scale_fill_brewer(palette='BrBG') +
+  theme_classic() +
+  ggtitle('Prey deliveries at 20 Mile Creek') +
+  xlab('Class') + ylab('No. of individuals delivered')
+```
+So that seems to work ok. The next step is looking at frequency and other time stuff. And size/biomass.
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+# UGLIEST CODE EVER!
+prey.size <- prey %>%  
+  mutate(class=replace(class, class=='U', 'Unknown'),
+         genus=replace(genus, genus=='U', 'Unknown'))
+
+prey.size$size <- case_when(prey.size$size == 'S' ~ 'Small',
+                            prey.size$size == 'M' ~ 'Medium',
+                            prey.size$size == 'L' ~ 'Large',
+                            TRUE ~ 'Unknown')
+
+prey.size <- prey.size %>%
+  group_by(class, size) %>%
+  summarize(n())
+
+
+prey.size <- prey.size %>%
+  rename(count=3)
+
+ggplot(prey.size, aes(fill=size, y=count, x=class)) + 
+  geom_bar(position='stack', stat='identity') +
+  scale_fill_brewer(palette='Set1') +
+  theme_classic() +
+  ggtitle('Prey deliveries at 20 Mile Creek') +
+  xlab('Class') + ylab('No. of individuals delivered')
+```
+Unsurprisingly, most of the unidentified things are small. 
+
+Looking the data from a time perspective...
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+delivery$datetime <- ymd_hms(delivery$datetime)
+
+ggplot(delivery, aes(x=datetime)) +
+  geom_histogram(binwidth=86400, color='white') +
+  theme_classic() +
+  xlab('Date') + ylab('No. of individuals delivered') +
+  ggtitle('Frequency of prey deliveries at TMC')
+
+```
+It's very odd that there's such a strong every-other-day pattern. The deliveries taper off after the nest fails, and I could find out when each chick dies.
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+mort <- df %>%
+  filter(live.chicks != '') %>%
+  dplyr::select(datetime, live.chicks, comments) %>%
+  filter(row_number() %in% 3:5)
+
+delivery$datetime <- ymd_hms(delivery$datetime)
+
+ggplot(delivery, aes(x=datetime)) +
+  geom_histogram(binwidth=86400, color='white') +
+  theme_classic() +
+  xlab('Date') + ylab('No. of individuals delivered') +
+  ggtitle('Frequency of prey deliveries at TMC') +
+  geom_vline(xintercept=ymd_hms(mort$datetime))
+```
+Adding the lines makes it clear how short of a timespan we had.

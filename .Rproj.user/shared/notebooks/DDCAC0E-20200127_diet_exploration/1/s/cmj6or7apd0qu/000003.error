@@ -1,0 +1,1 @@
+{"frames":[],"message":"Error: unexpected ')' in:\n\"write.csv(df, \n    file='C:/Users/Gwyn/sfuvault/move-space/data/processed/TMC_photos_short.csv', row.names=FALSE))\"\n"}

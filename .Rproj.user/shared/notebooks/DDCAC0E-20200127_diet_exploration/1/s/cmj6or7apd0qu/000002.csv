@@ -1,0 +1,8 @@
+"0","# Save it!
+write.csv(df, 
+    file='C:/Users/Gwyn/sfuvault/move-space/data/processed/TMC_photos_short.csv', row.names=FALSE))
+"
+"2","Error: unexpected ')' in:
+""write.csv(df, 
+    file='C:/Users/Gwyn/sfuvault/move-space/data/processed/TMC_photos_short.csv', row.names=FALSE))""
+"

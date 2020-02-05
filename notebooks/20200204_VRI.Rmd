@@ -1,0 +1,35 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Just playing around with some basic landscape stuff to see how it works and maybe throw something together for PEEC.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Load in some libraries.
+library('cartography')
+library('sf')
+library('tidyverse')
+library('rgdal')
+
+# Import VRI shapefile.
+vri <- st_read('../data/external/VRI/VEG_R1_PLY_polygon.shp')
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+classed <- vri %>%
+  mutate(class=case_when(
+    BCLCS_LV_2 == 'W' ~ 'WTR',
+    BCLCS_LV_4 == 'TB' ~ 'HWD',
+    BCLCS_LV_4 == 'TM' ~ 'HWD',
+    BCLCS_LV_4 == 'TC' & PROJ_AGE_1 <= 50 ~ 'YNG',
+    BCLCS_LV_4 == 'TC' & PROJ_AGE_1 < 10 ~ 'BLK',
+    BCLCS_LV_4 == 'TC' & PROJ_AGE_1 > 50  ~ 'MTR',
+    BCLCS_LV_4 == 'TC' & PROJ_AGE_1 > 150 ~ 'OGR',
+    BCLCS_LV_5 == 'UR' ~ 'URB',
+    TRUE ~ 'OPN'
+  ))
+
+st_write(classed, '../data/external/VRI/classed.shp')
+```
+So I checked that in QGIS and obviously I need to fix my case_whens, because it did a terrible job of classifying things.

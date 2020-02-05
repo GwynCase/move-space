@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1580848589335.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "204801783",
+    "id" : "EC8DD8AE",
+    "lastKnownWriteTime" : 1580862991,
+    "last_content_update" : 1580862991631,
+    "path" : "C:/Users/Gwyn/sfuvault/move-space/notebooks/roost_sties.Rmd",
+    "project_path" : "notebooks/roost_sties.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "83,0",
+        "scrollLine" : "71",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

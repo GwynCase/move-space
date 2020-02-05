@@ -229,30 +229,15 @@ summary {
 <p>I have a ton of photos from nest cameras, and I need to figure out how to process them efficiently.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBMb2FkIHNvbWUgbGlicmFyaWVzLlxubGlicmFyeSgndGlkeXZlcnNlJylcbmxpYnJhcnkoJ2V4aWZ0b29scicpXG5saWJyYXJ5KCdsdWJyaWRhdGUnKVxuIyBUaGlzIGluc3RhbGxzIGV4aWZ0b29sLCB3aGljaCBsZXRzIG1lIHZpZXcgRVhJRiBkYXRhLlxuaW5zdGFsbF9leGlmdG9vbCgpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBMb2FkIHNvbWUgbGlicmFyaWVzLlxubGlicmFyeSgndGlkeXZlcnNlJylcbmxpYnJhcnkoJ2V4aWZ0b29scicpXG5saWJyYXJ5KCdsdWJyaWRhdGUnKVxubGlicmFyeSgncHVycnInKVxuIyBUaGlzIGluc3RhbGxzIGV4aWZ0b29sLCB3aGljaCBsZXRzIG1lIHZpZXcgRVhJRiBkYXRhLlxuIyBpbnN0YWxsX2V4aWZ0b29sKClcbiMgTWFrZSBhIGxpc3Qgb2YgYWxsIHRoZSBmaWxlcyBpbiB0aGUgZGlyZWN0b3J5LlxuVE1DLmZpbGVzIDwtIGxpc3QuZmlsZXMoJ0Q6L1JFQ09OWVgvVHdlbnR5TWlsZUNyZWVrLzEwMFJFQ05YX1R3ZW50eU1pbGUnLCBmdWxsLm5hbWVzPVRSVUUpXG4jIEV4dHJhY3QgRVhJRiBkYXRhIGZyb20gdGhlIGZpbGVzIGFuZCBtYWtlIGEgZGF0YWZyYW1lLlxuVE1DLnBob3RvcyA8LSBleGlmX3JlYWQoVE1DLmZpbGVzLFxuICAgICAgICAgICAgICAgICAgICB0YWdzPWMoJ2ZpbGVuYW1lJywgJ0NyZWF0ZURhdGUnLCAnU2VyaWFsTnVtYmVyJykpXG5gYGAifQ== -->
 <pre class="r"><code># Load some libraries.
 library('tidyverse')
 library('exiftoolr')
 library('lubridate')
+library('purrr')
 # This installs exiftool, which lets me view EXIF data.
-install_exiftool()</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAlIFRvdGFsICAgICUgUmVjZWl2ZWQgJSBYZmVyZCAgQXZlcmFnZSBTcGVlZCAgIFRpbWUgICAgVGltZSAgICAgVGltZSAgQ3VycmVudFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRGxvYWQgIFVwbG9hZCAgIFRvdGFsICAgU3BlbnQgICAgTGVmdCAgU3BlZWRcblxuICAwICAgICAwICAgIDAgICAgIDAgICAgMCAgICAgMCAgICAgIDAgICAgICAwIC0tOi0tOi0tIC0tOi0tOi0tIC0tOi0tOi0tICAgICAwXG4gIDAgICAgIDAgICAgMCAgICAgMCAgICAwICAgICAwICAgICAgMCAgICAgIDAgLS06LS06LS0gLS06LS06LS0gLS06LS06LS0gICAgIDBcbiAgMCAgIDMzMSAgICAwICAgICAwICAgIDAgICAgIDAgICAgICAwICAgICAgMCAtLTotLTotLSAtLTotLTotLSAtLTotLTotLSAgICAgMFxuXG4xMDAgICAyNDcgIDEwMCAgIDI0NyAgICAwICAgICAwICAgIDM1MSAgICAgIDAgLS06LS06LS0gLS06LS06LS0gLS06LS06LS0gICAzNTFcblxuICAxIDYzMTRrICAgIDEgOTgzMDQgICAgMCAgICAgMCAgNzU3OTMgICAgICAwICAwOjAxOjI1ICAwOjAwOjAxICAwOjAxOjI0IDc1NzkzXG4gNTEgNjMxNGsgICA1MSAzMjQ4ayAgICAwICAgICAwICAxNDMzayAgICAgIDAgIDA6MDA6MDQgIDA6MDA6MDIgIDA6MDA6MDIgMzI1MmtcbjEwMCA2MzE0ayAgMTAwIDYzMTRrICAgIDAgICAgIDAgIDE5NTJrICAgICAgMCAgMDowMDowMyAgMDowMDowMyAtLTotLTotLSAzMjEwa1xuIn0= -->
-<pre><code>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-  0   331    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-
-100   247  100   247    0     0    351      0 --:--:-- --:--:-- --:--:--   351
-
-  1 6314k    1 98304    0     0  75793      0  0:01:25  0:00:01  0:01:24 75793
- 51 6314k   51 3248k    0     0  1433k      0  0:00:04  0:00:02  0:00:02 3252k
-100 6314k  100 6314k    0     0  1952k      0  0:00:03  0:00:03 --:--:-- 3210k</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBNYWtlIGEgbGlzdCBvZiBhbGwgdGhlIGZpbGVzIGluIHRoZSBkaXJlY3RvcnkuXG5UTUMuZmlsZXMgPC0gbGlzdC5maWxlcygnRDovUkVDT05ZWC9Ud2VudHlNaWxlQ3JlZWsvMTAwUkVDTlhfVHdlbnR5TWlsZScsIGZ1bGwubmFtZXM9VFJVRSlcbiMgRXh0cmFjdCBFWElGIGRhdGEgZnJvbSB0aGUgZmlsZXMgYW5kIG1ha2UgYSBkYXRhZnJhbWUuXG5UTUMucGhvdG9zIDwtIGV4aWZfcmVhZChUTUMuZmlsZXMsXG4gICAgICAgICAgICAgICAgICAgIHRhZ3M9YygnZmlsZW5hbWUnLCAnQ3JlYXRlRGF0ZScsICdTZXJpYWxOdW1iZXInKSlcbmBgYCJ9 -->
-<pre class="r"><code># Make a list of all the files in the directory.
+# install_exiftool()
+# Make a list of all the files in the directory.
 TMC.files &lt;- list.files('D:/RECONYX/TwentyMileCreek/100RECNX_TwentyMile', full.names=TRUE)
 # Extract EXIF data from the files and make a dataframe.
 TMC.photos &lt;- exif_read(TMC.files,
