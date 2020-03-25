@@ -12,10 +12,10 @@ library('purrr')
 
 # Fill in these three things:
 # Where are the pictures now?
-path.in <- 'D:/RECONYX/Uztilus/100RECNX_Uzitlis/'
+path.in <- 'D:/RECONYX/Turbid/102RECNX_Turbid/'
 
 # What site is it?
-site <- 'UTZ'
+site <- 'TCR3'
 
 # Where are the pictures going?
 # END WITH A FORWARD SLASH

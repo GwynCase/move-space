@@ -47,3 +47,10 @@ output: html_notebook
 * 20200108 - Select landscape variables by next week's meeting.
 * ~~20200108 - Set up prey analysis workflow for next week.~~
 * ~~20200108 - Make potential prey list by next week.~~
+* 20200305 - Write up field plan for summer 2020
+    * Pick VI sites
+    * Write up voucher protocol
+    * Pick priority SC sites for trapping & tagging
+* 20200305 Email JE re: dho-gaza nets
+* 20200305 Create nest table
+* 20200305 Do preliminary analysis of diet data

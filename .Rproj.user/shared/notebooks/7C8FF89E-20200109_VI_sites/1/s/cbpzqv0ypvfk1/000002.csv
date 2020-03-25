@@ -1,4 +1,0 @@
-"0","# Select only observations of nests."
-"0","vi.nest.assess.2019 <- vi.2019 %>% filter(Nest.Status != """")"
-"0","# List sites at which nest assessments were conducted."
-"0","distinct(vi.nest.assess.2019, SiteName)"

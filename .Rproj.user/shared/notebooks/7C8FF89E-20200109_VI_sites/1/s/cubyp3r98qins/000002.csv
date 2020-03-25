@@ -1,6 +1,0 @@
-"0","voucher.2019 <- vi.2019 %>% filter(Sign.Type %in% c('RP', 'DC')) %>%"
-"0","  distinct(vi.2019, SiteName)"
-"0","voucher.2018 <- vi.2018 %>% filter(SignType == 'FE') %>%"
-"0","  distinct(vi.2019, SiteName)"
-"0","voucher.sites <- bind_rows(voucher.2019, voucher.2018, .id='year')"
-"0","voucher.sites"
