@@ -12,14 +12,14 @@ library('purrr')
 
 # Fill in these three things:
 # Where are the pictures now?
-path.in <- 'D:/RECONYX/Turbid/102RECNX_Turbid/'
+path.in <- 'D:/RECONYX/TwentyMileCreek/100RECNX_TwentyMile/'
 
 # What site is it?
-site <- 'TCR3'
+site <- 'TMC'
 
 # Where are the pictures going?
 # END WITH A FORWARD SLASH
-path.out <- 'E:/'
+path.out <- 'D:/'
 
 # Now just hit run and the rest will take care of itself.
 # IT WILL TAKE A WHILE. GO GET A COFFEE AND BE PATIENT.
