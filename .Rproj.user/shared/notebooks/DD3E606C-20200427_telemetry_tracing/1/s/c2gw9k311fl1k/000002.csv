@@ -1,0 +1,5 @@
+"0","# On which days do I have telemetry data for a delivery?"
+"0","mtc.cap.days <- mtc.caps %>% dplyr::select(date) %>% "
+"0","  distinct()"
+"0","# Annotate all telemetry locations for those days."
+"0","mtc.t$del.day <- mtc.t$date %in% mtc.cap.days$date"

@@ -1,0 +1,39 @@
+"0","```r
+# Sites that were checked on Vancouver Island in 2018.
+vi.checked.2018 <- vi.2018 %>%
+  filter(NestAssess == 'Yes')
+# Sites that were checked on Vancouver Island in 2019.
+vi.checked.2019 <- vi.2019 %>% filter(`Nest  Assess` == 'Yes') %>% 
+  mutate(`Site Name`=case_when(
+    `Site Name` == 'Lukwa S' ~ 'Lukwa South',
+    `Site Name` == 'Seymour River W' ~ 'Seymour River West',
+    `Site Name` == 'Tsitika W' ~ 'Tsitika West',
+    TRUE ~ `Site Name`
+  ))
+# Sites that were checked on the South Coast in 2018.
+sc.checked.2018 <- sc.nests %>% filter(Occup2018 %in% c('Breeding', 'Not Occupied', 'Resident')) %>% 
+  mutate(TerrName=case_when(
+    TerrName == 'St.Vincent' ~ 'St. Vincent',
+    TRUE ~ TerrName
+  ))
+# Sites that were checked on the South Coast in 2019.
+sc.checked.2019 <- sc.nests %>% filter(Occup2019 %in% c('Breeding', 'Not Occupied', 'Resident'))
+# Vancouver Island sites checked both years.
+intersect(vi.checked.2018$SiteName, vi.checked.2019$`Site Name`)
+```"
+"1","[1] \"Goose Creek\"  \"Rona Loop\"    \"Lukwa South\"  \"Tsitika West\"
+[5] \"Cook Creek\"   \"Mahatta\"      \"China Beach\"  \"Taylor River\"
+[9] \"Keta\"        
+"
+"0","```r
+# South Coast sites checked both years.
+intersect(sc.checked.2018$TerrName, sc.checked.2019$TerrName)
+```"
+"1"," [1] \"DewdneyCreek\"   \"Ford Mountain\"  \"MtHolden\"       \"Silver\"        
+ [5] \"Clowhom\"        \"Duck Lake\"      \"Freil\"          \"Giovanno\"      
+ [9] \"Granite Mtn\"    \"Haslam\"         \"Maurell Island\" \"McNair\"        
+[13] \"MtPearkes\"      \"Nanton\"         \"Osgood\"         \"Phantom\"       
+[17] \"Potlatch\"       \"Powell Daniels\" \"Ruby Lake\"      \"Skaiakos\"      
+[21] \"St. Vincent\"    \"Brohm\"          \"Dipper Creek\"   \"Jarvis\"        
+[25] \"Lillooette\"     \"Millars Pond\"   \"Turbid\"         \"Wedge Creek\"   
+"

@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1588017777304.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3841877713",
+    "id" : "1F8A0262",
+    "lastKnownWriteTime" : 1588026596,
+    "last_content_update" : 1588026596384,
+    "path" : "C:/Users/Gwyn/sfuvault/move-space/src/exploratory/scratch.R",
+    "project_path" : "src/exploratory/scratch.R",
+    "properties" : {
+        "cursorPosition" : "2,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
