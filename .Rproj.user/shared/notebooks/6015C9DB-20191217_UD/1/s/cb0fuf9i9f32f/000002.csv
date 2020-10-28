@@ -1,5 +1,0 @@
-"0","kud <- sf.df %>%"
-"0","  dplyr::select(id, geometry) %>%"
-"0","  as_Spatial() %>%"
-"0","  kernelUD(extent=0.25, grid=100)"
-"0","image(kud)"

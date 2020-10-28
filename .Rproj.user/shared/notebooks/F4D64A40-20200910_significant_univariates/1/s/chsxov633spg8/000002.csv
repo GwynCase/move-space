@@ -1,0 +1,13 @@
+"0","```r
+productivity.landscape.statistics <- productivity.landscape.statistics %>% 
+  mutate(sig=round(p.value, digits=2)) %>% 
+  mutate(sig=case_when(
+  p.value < 0.1 ~ paste(as.character(sig), '*'),
+  TRUE ~  paste(as.character(sig))
+))
+
+productivity.landscape.statistics %>% select(size, sig, variable) %>% 
+  pivot_wider(names_from=size, values_from=sig) %>% 
+  select(variable, PFA, everything()) %>% 
+  kable() %>% kable_styling(bootstrap_options=c('striped'))
+```"

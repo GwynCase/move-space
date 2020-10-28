@@ -1,0 +1,5 @@
+"0","visit.threshold = quantile(rlk.300$revisits, 0.8)"
+"0","cluster = kmeans(rlk.sf.c[rlk.300$revisits > visit.threshold, c('xcoord', 'ycoord')], centers=3)"
+"0",""
+"0","plot(rlk.sf.c$xcoord, rlk.sf.c$ycoord,"
+"0","     pch = '.', axes=FALSE, asp=1)"

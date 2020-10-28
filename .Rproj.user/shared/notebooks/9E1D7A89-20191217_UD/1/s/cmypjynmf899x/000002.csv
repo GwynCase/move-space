@@ -1,0 +1,32 @@
+"0","```r
+# Load up some libraries.
+library('tidyverse')
+library('lubridate')
+library('adehabitatHR')
+library('sf')
+library('raster')
+library('knitr')
+# Read in the data.
+df <- read.csv('../data/processed/telem_all.csv', 
+               header=TRUE, stringsAsFactors=FALSE) %>%
+  drop_na('lat')
+# Do the datetime thing.
+df$datetime <- ymd_hms(df$datetime, tz='America/Vancouver')
+# Do the spatial thing.
+sf.df <- st_as_sf(df, coords=c('lon', 'lat')) %>%
+  st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs') %>%
+  st_transform(\"+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs\")
+# Define period of interest
+nestling <- interval(ymd(20190511), ymd(20190710))
+# Filter desired period, tags.
+sf.df <- sf.df %>%
+  mutate(yrls=ymd(paste(2019, month(datetime), day(datetime)))) %>%
+  filter(datetime %within% nestling) %>%
+  filter(id %in% c('HAR10', 'HAR09', 'HAR04', 'HAR05'))
+# Make the kud.
+kud <- sf.df %>%
+  dplyr::select(id, geometry) %>%
+  as_Spatial() %>%
+  kernelUD()
+image(kud)
+```"

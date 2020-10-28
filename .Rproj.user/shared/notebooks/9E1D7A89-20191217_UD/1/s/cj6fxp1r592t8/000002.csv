@@ -1,0 +1,11 @@
+"0","```r
+sf.ska <- sf.df %>%
+  mutate(yrls=ymd(paste(2019, month(datetime), day(datetime)))) %>%
+  filter(datetime %within% nestling) %>%
+  filter(id == 'HAR05')
+kud.ska <- sf.ska %>%
+  dplyr::select(id, geometry) %>%
+  as_Spatial() %>%
+  kernelUD(extent=0.25, grid=100)
+image(kud.ska)
+```"

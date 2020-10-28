@@ -1,0 +1,3 @@
+"0",""
+"0","rlk.400 <- getRecursions(rlk.sf.c, 400)"
+"0","plot(rlk.400, rlk.sf.c, axes=FALSE)"

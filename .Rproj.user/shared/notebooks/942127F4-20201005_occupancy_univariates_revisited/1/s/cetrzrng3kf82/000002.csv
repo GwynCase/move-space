@@ -1,0 +1,16 @@
+"0","```r
+glm(proportion.occupied ~ proportion.suitable, data=data, family=binomial, weights=years.surveyed)
+```"
+"1","
+Call:  glm(formula = proportion.occupied ~ proportion.suitable, family = binomial, 
+    data = data, weights = years.surveyed)
+
+Coefficients:
+        (Intercept)  proportion.suitable  
+          -0.244056             0.005721  
+
+Degrees of Freedom: 118 Total (i.e. Null);  117 Residual
+  (1 observation deleted due to missingness)
+Null Deviance:	    287.9 
+Residual Deviance: 285.8 	AIC: 439.5
+"

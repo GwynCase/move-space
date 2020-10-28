@@ -1,0 +1,11 @@
+"0","```r
+library('tidyverse')
+library('sf')
+library('rgdal')
+library('adehabitatHR')
+library('ggplot2')
+library('ggspatial')
+library('tibble')
+library('lubridate')
+library('move')
+```"

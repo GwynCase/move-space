@@ -1,0 +1,28 @@
+"0","```r
+# Add productivity to dataset.
+data <- camera.sites.2019 %>% select(nest, n_fledge) %>% full_join(data, by=c('nest'))
+
+# Make a bunch of models.
+
+# Diet diversity.
+productivity.by.diet.diversity <- data %>% 
+  split(.$size) %>% 
+  map(~lm(n_fledge ~ diet.diversity, data=.x)) %>% 
+  map(summary) %>% 
+  map(glance) %>% 
+  bind_rows(.id='size') %>% 
+  mutate(variable='diet diversity')
+
+# Proportion squirrel.
+productivity.by.proportion.squirrel <- data %>% 
+  split(.$size) %>% 
+  map(~lm(n_fledge ~ proportion.squirrel, data=.x)) %>% 
+  map(summary) %>% 
+  map(glance) %>% 
+  bind_rows(.id='size') %>% 
+  mutate(variable='proportion squirrel')
+
+# Bind it all together.
+productivity.diet.statistics <- bind_rows(productivity.by.diet.diversity, 
+          productivity.by.proportion.squirrel)
+```"

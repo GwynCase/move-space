@@ -1,0 +1,19 @@
+"0","```r
+occupancy <- read_csv('../data/processed/occupancy_sc.csv')
+
+occupied <- occupancy %>% pivot_longer(-c(site, name), names_to='year', values_to='status') %>%
+  filter(status > 0) %>% 
+  group_by(site, status) %>% 
+  add_tally() %>% 
+  distinct(site, status, .keep_all=TRUE) %>% 
+  select(-year) %>% 
+  pivot_wider(names_from=status, values_from=n, values_fill=0) %>% 
+  ungroup() %>% rowwise(site, name) %>% 
+  mutate(years.surveyed=sum(c(`3`, `2`, `1`)),
+         years.occupied=sum(c(`3`, `2`)),
+         proportion.occupied=years.occupied/years.surveyed) %>% 
+  select(site, name, years.surveyed, years.occupied, proportion.occupied) %>% 
+  filter(years.surveyed > 2)
+
+occupied
+```"

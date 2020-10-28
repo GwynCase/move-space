@@ -1,0 +1,4 @@
+"0","foraging.stats %>% drop_na(timeSinceLastVisit) %>% "
+"0","  ggplot(aes(x=timeSinceLastVisit, y=timeInside)) +"
+"0","  geom_point() +"
+"0","  theme_classic()"

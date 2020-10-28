@@ -1,3 +1,0 @@
-"0","ska$datetime <- ymd_hms(ska$datetime, tz='America/Vancouver')"
-"0","move.ska <- move(x=ska$lon, y=ska$lat, time=ska$datetime, proj=CRS(""+proj=longlat""))"
-"0","hrBootstrap(x=move.ska, rep=25, unin='km', unout='km2', plot=FALSE)"

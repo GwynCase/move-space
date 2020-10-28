@@ -1,0 +1,6 @@
+"0","# Plot it."
+"0","ggplot(dist, aes(y=distance)) +"
+"0","  geom_histogram(binwidth=10) +"
+"0","  theme_classic() +"
+"0","  coord_flip() +"
+"0","  facet_wrap(~id, scales='free')"

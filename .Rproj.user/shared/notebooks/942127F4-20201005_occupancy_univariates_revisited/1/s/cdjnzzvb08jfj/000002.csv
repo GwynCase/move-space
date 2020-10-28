@@ -1,0 +1,4 @@
+"0","```r
+# Bring in previously calculated data.
+data <- readRDS('../data/interim/occupancy_landscape_metrics.rds')
+```"

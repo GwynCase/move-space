@@ -1,0 +1,4 @@
+"0","```r
+v.all <- getverticeshr(kud)
+plot(v.all)
+```"

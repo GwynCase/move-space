@@ -1,0 +1,32 @@
+"0","```r
+# Calculate diet diversity.
+camera.diet.diversity <- plyr::ddply(camera.diet.wide, ~nest, function(x) {
+           data.frame(diet.diversity=diversity(x[-1], index='simpson'))
+   })
+
+# Proportion of diet made up of squirrel, by biomass.
+camera.proportion.squirrel <- diet.items %>% 
+  filter(method == 'camera') %>% 
+  mutate(mass=as.numeric(mass)) %>% 
+  group_by(nest) %>% 
+  mutate(total=sum(mass)) %>% 
+  filter(genus == 'Tamiasciurus') %>% 
+  mutate(amount.sq=sum(mass), proportion.squirrel=amount.sq/total) %>% 
+  select(nest, proportion.squirrel) %>% distinct()
+
+# Proportion of diet made up of mammal, by biomass.
+camera.proportion.mammal <- diet.items %>% 
+  filter(method == 'camera') %>% 
+  mutate(mass=as.numeric(mass)) %>% 
+  group_by(nest) %>% 
+  mutate(total=sum(mass)) %>% 
+  filter(class == 'Mammalia') %>% 
+  mutate(amount.mm=sum(mass), proportion.mammal=amount.mm/total) %>% 
+  select(nest, proportion.mammal) %>% distinct()
+
+# Join them together.
+camera.diet.variables <- full_join(camera.diet.diversity, camera.proportion.mammal, by=c('nest')) %>% 
+  full_join(camera.proportion.squirrel, by=c('nest'))
+
+camera.diet.variables
+```"

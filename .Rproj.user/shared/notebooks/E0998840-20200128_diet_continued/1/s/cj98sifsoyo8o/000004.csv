@@ -1,6 +1,0 @@
-"0","delivery$datetime <- ymd_hms(delivery$datetime)"
-"0","ggplot(delivery, aes(x=datetime)) +"
-"0","  geom_histogram(binwidth=86400, color='white') +"
-"0","  theme_classic() +"
-"0","  xlab('Date') + ylab('No. of individuals delivered') +"
-"0","  ggtitle('Frequency of prey deliveries at TMC')"

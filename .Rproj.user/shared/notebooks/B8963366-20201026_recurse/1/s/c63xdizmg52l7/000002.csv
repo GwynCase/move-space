@@ -1,0 +1,4 @@
+"0","foraging.stats %>% drop_na(timeSinceLastVisit) %>% "
+"0","  ggplot(aes(x=timeSinceLastVisit)) +"
+"0","  geom_density() +"
+"0","  theme_classic()"

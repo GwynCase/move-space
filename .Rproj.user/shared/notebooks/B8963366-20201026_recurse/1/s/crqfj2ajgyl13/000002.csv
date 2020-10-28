@@ -1,0 +1,5 @@
+"0","ggplot(visit.stats, aes(x=time, y=timeInside)) +"
+"0","  geom_boxplot() +"
+"0","  theme_classic() +"
+"0","  geom_jitter(alpha=0.25) +"
+"0","  labs(x='entrance time', y='visit duration')"

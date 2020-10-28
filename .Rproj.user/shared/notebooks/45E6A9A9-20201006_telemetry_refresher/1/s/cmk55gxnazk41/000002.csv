@@ -1,0 +1,5 @@
+"0","homerange %>% filter(method == 'mcp') %>% "
+"0","  group_by(sex, percent) %>% "
+"0","  summarize(n=n(), mean.area=mean(area))"
+"2","`summarise()` regrouping output by 'sex' (override with `.groups` argument)
+"

@@ -1,0 +1,12 @@
+"0","```r
+# Area is in hectares.
+landscape <- data.frame(
+  size=c('PFA', 'breeding area', 'home range', 'maximum range'),
+  area=c(60, 200, 3800, 32902.97)
+)
+
+# Convert area in hectares to radii in meters.
+landscape <- landscape %>% mutate(radius=sqrt(area*10000/pi))
+
+landscape
+```"

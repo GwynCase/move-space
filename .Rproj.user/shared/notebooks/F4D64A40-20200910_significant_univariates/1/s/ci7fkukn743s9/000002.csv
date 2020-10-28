@@ -1,0 +1,29 @@
+"0","```r
+# Make a list of landcover metrics to calculate.
+landcover.metrics <- c('lsm_c_pland', 'lsm_l_ed', 'lsm_l_contag', 'lsm_l_sidi', 'lsm_l_siei', 'lsm_l_prd')
+
+# Make a function to do the calculations and formatting.
+calc.landcover.metrics <- function(x) {
+  sample_lsm(r.landcover, y=camera.sites.sf, size=x, plot_id=camera.nests, shape='circle', 
+             what=landcover.metrics) %>% 
+    left_join(landcover.levels, by=c('class'='ID')) %>% 
+    mutate(class.name=ifelse(is.na(class.name), metric, class.name)) %>% 
+    select(-class, -metric, -level) %>%  
+    pivot_wider(names_from=class.name, values_from=value) %>% 
+    mutate(radius=x)
+}
+
+# Run the function for each sample size.
+landcover.landscape.metrics <- map_df(landscape$radius, calc.landcover.metrics)
+
+# Do some cleanup: fill NAs with zeros and rename columns, calculate mature forest.
+landcover.landscape.metrics <- landcover.landscape.metrics %>% 
+  replace_na(list(old=0, mature=0)) %>% 
+  mutate(proportion.cover.mature=mature + old) %>% 
+  select(radius, nest=plot_id, proportion.cover.mature,
+         cover.edge.density=ed, cover.contagion=contag,
+         cover.diversity=sidi, cover.evenness=siei, cover.richness=prd) %>% 
+  filter(nest != 'TCR2019')
+
+landcover.landscape.metrics <- select(landscape, radius, size) %>% right_join(landcover.landscape.metrics)
+```"

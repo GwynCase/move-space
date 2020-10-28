@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1592241298525.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1908136156",
+    "id" : "75159C4A",
+    "lastKnownWriteTime" : 1588026644,
+    "last_content_update" : 1588026644,
+    "path" : "C:/Users/Gwyn/sfuvault/move-space/notebooks/20200427_telemetry_tracing.Rmd",
+    "project_path" : "notebooks/20200427_telemetry_tracing.Rmd",
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "cursorPosition" : "60,163",
+        "last_setup_crc32" : "B274C1Adf6655cb",
+        "scrollLine" : "41",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

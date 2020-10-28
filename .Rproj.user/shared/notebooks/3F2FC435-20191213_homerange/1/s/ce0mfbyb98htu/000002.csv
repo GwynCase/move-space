@@ -1,0 +1,20 @@
+"0","```r
+# Make sf object.
+sf.ska <- st_as_sf(ska, coords=c('lon', 'lat'))
+sf.ska <- st_set_crs(sf.ska, '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')
+# Transform to UTM so area makes sense.
+sf.ska <- st_transform(sf.ska, \"+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs\")
+# Look at area.
+mcp.ska <- sf.ska %>% as_Spatial() %>%
+  mcp.area(percent=seq(20, 100, by=10),
+           unin='m', unout='ha', plotit=FALSE) %>%
+  rownames_to_column(var='name') %>%
+  mutate(percent=as.numeric(name)) %>%
+  rename(area=a)
+ggplot(mcp.ska, aes(percent, area)) +
+  geom_point() +
+  geom_path() +
+  theme_minimal() +
+  theme(panel.grid=element_line(color='white')) +
+  labs(x='Percent of location points', y='Home range area (ha)', title='Skaiakos')
+```"

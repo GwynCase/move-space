@@ -1,0 +1,42 @@
+---
+title: "Spatial storytime"
+output: html_notebook
+---
+
+# Summary of available telemetry data
+
+```{r options, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+```
+
+```{r message=FALSE}
+# Import conflict settings.
+source('../src/conflicted.R')
+
+#Load some libraries.
+library(tidyverse)
+library(sf)
+library(lubridate)
+library(adehabitatHR)
+library(ggplot2)
+library(extrafont)
+
+# Define some colors.
+m <- '#d36135' # Flame
+f <- '#689689' # Polished pine
+
+# Load telemetry data.
+tl <- read_csv('../data/processed/telemetry_2018-2019.csv')
+
+# RLK appears to have been missexed. I'll change that here.
+tl <- tl %>% mutate(sex = case_when(
+  id == 'HAR04' ~ 'm',
+  TRUE ~ sex
+  ))
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

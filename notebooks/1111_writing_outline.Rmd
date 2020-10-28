@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+# Introduction
+
+Forest type (& prey base) * forest character (& abundance) -> home range size.
+
+Prey abundance * prey availability -> habitat selection
+  Math differs based on available prey!
+
+Therefore prey base & landscape combine to determine habitat selection and home range size.
+
+How much & what kind of habitat to preserve for NOGO? Depends on what they're eating.
+
+# Methods
+
+Home range size ~ diet
+Home range size ~ forest type
+Home range size ~ forest characteristics
+
+Habitat selection/home range
+Habitat selection ~ diet

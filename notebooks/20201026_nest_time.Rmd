@@ -1,0 +1,78 @@
+---
+title: "Nest time"
+output: html_notebook
+---
+
+```{r options, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
+```
+
+Let's take a look at movement behavior around the nest: how much time do birds spend there, and how often do they come and go.
+
+```{r message=FALSE}
+# Import conflict settings.
+source('../src/conflicted.R')
+
+#Load some libraries.
+library(tidyverse)
+library(sf)
+library(lubridate)
+library(adehabitatHR)
+library(ggplot2)
+library(extrafont)
+library(recurse)
+
+# Define some colors.
+m <- '#d36135' # Flame
+f <- '#689689' # Polished pine
+
+# Load telemetry data.
+tl <- read_csv('../data/processed/telemetry_2018-2019.csv')
+
+# RLK appears to have been missexed. I'll change that here.
+tl <- tl %>% mutate(sex = case_when(
+  id == 'HAR04' ~ 'm',
+  TRUE ~ sex
+  ))
+```
+
+Let's quickly remind ourselves of what birds we have, and trim down the points to breeding season only.
+
+```{r, warning=FALSE}
+# Define breeding season.
+breeding.2018 <- interval(ymd(20180511), ymd(20180901))
+breeding.2019 <- interval(ymd(20190511), ymd(20190901))
+
+# Select only points that fall within the breeding season.
+tl.breeding <- tl %>% 
+  filter(date %within% c(breeding.2018, breeding.2019))
+
+# Summarize.
+tl.breeding %>% group_by(id) %>% 
+  mutate(min=min(date), max=max(date), n.points=n(), period=max-min) %>% 
+  distinct(id, sex, site, n.points, min, max, period) 
+```
+
+A very simple way of measuring time spent at the nest is to see how many points are marked as `at.base`. This means the tag was within about 5 meters of the nest (and the base station) when it took the location point.
+
+```{r}
+tl.breeding %>% group_by(id) %>% 
+  mutate(t.points=n(), base.points=sum(at.base), base.prop=base.points/t.points*100) %>%
+  distinct(id, sex, site, base.prop)
+```
+
+Obviously the males do *visit* the nest since they make prey deliveries, but equally obviously they don't linger. Since the tags take locations every 15 minutes, this means the males generally spend less than 15 minutes at the nest when making a delivery, or stay more than 5 meters from the nest when making a delivery.
+
+Just to do the thing properly:
+
+```{r}
+tl.breeding %>% group_by(id) %>% 
+  mutate(t.points=n(), base.points=sum(at.base), base.prop=base.points/t.points*100) %>%
+  distinct(id, sex, site, base.prop) %>% 
+  group_by(sex) %>% mutate(mean.nest.time=mean(base.prop)) %>% 
+  distinct(sex, mean.nest.time)
+```
+
+So males spend an average of 2.5% of their time at the nest, while females spend an average of 82% of their time at the nest.
+
+Obviously this coarse metric doesn't tell me about short visits or close-but-no-cigar visits. For that, let's try the `recurse` package.

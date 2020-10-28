@@ -1,0 +1,8 @@
+"0","```r
+occupancy.landscape.statistics %>% 
+  filter(term != '(Intercept)' & p.value < 0.05) %>% 
+  select(size, estimate, variable) %>% 
+  pivot_wider(names_from=size, values_from=estimate) %>% 
+  select(variable, PFA, `breeding area`, everything()) %>% 
+  kable() %>% kable_styling(bootstrap_options=c('striped'))
+```"

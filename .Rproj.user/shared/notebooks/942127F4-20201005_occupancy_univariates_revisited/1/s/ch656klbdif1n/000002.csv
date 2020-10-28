@@ -1,0 +1,13 @@
+"0","# Load all the rasters.
+source('../src/load_rasters.R')
+
+# Calculate metrics for each site.
+source('../src/calc_land_metrics.R')
+
+# Join the data together.
+data <- full_join(occupied, bec.landscape.metrics, by=c('site' = 'nest')) %>%
+  full_join(suitable.landscape.metrics, by=c('site' = 'nest', 'radius')) %>% 
+  full_join(landcover.landscape.metrics, by=c('site' = 'nest', 'radius', 'size')) %>% 
+  full_join(hsi.landscape.metrics, by=c('site' = 'nest', 'radius', 'size')) %>% 
+  full_join(gap.landscape.metrics, by=c('site' = 'nest', 'radius', 'size')) %>% 
+  full_join(canopy.landscape.metrics, by=c('site' = 'nest', 'radius', 'size'))"

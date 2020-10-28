@@ -1,0 +1,2 @@
+"0","# Save for now, since it takes a while to calculate.
+saveRDS(data, '../data/interim/occupancy_landscape_metrics.rds')"

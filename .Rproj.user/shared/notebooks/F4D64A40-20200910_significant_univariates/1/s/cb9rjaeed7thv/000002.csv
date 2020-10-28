@@ -1,0 +1,25 @@
+"0","```r
+# Make a list of BEC metrics to calculate.
+bec.metrics <- c('lsm_l_sidi')
+
+# Make a function to do the calculations and formatting.
+calc.bec.metrics <- function(x) {
+  sample_lsm(r.bec, y=camera.sites.sf, size=x, plot_id=camera.nests, shape='circle', what=bec.metrics) %>% 
+    left_join(bec.levels, by=c('class'='ID')) %>% 
+    group_by(plot_id, metric) %>% 
+    top_n(1, value) %>% ungroup() %>%  
+    fill(category) %>% 
+    filter(level == 'landscape') %>% 
+    pivot_wider(names_from=metric, values_from=value) %>% 
+    mutate(radius=x)
+}
+
+# Run the function for each sample size.
+bec.landscape.metrics <- map_df(landscape$radius, calc.bec.metrics)
+
+# Tidy things up.
+bec.landscape.metrics <- bec.landscape.metrics %>% 
+  select(nest=plot_id, bec.diversity=sidi, radius)
+
+bec.landscape.metrics <- select(landscape, radius, size) %>% right_join(bec.landscape.metrics, by='radius')
+```"

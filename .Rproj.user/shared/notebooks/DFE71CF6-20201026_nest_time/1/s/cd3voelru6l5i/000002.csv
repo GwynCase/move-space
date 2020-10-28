@@ -1,0 +1,5 @@
+"0","tl.breeding %>% group_by(id) %>% "
+"0","  mutate(t.points=n(), base.points=sum(at.base), base.prop=base.points/t.points*100) %>%"
+"0","  distinct(id, sex, site, base.prop) %>% "
+"0","  group_by(sex) %>% mutate(mean.nest.time=mean(base.prop)) %>% "
+"0","  distinct(sex, mean.nest.time)"

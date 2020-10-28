@@ -1,0 +1,5 @@
+"0","filter(dist, id == 'HAR04') %>% "
+"0","  filter(distance < 1000) %>% "
+"0","  ggplot(aes(x=distance)) +"
+"0","  geom_density(fill='lightgrey') +"
+"0","  theme_classic()"

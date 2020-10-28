@@ -1,0 +1,25 @@
+"0","```r
+# Make a list of metrics to calculate.
+suitable.metrics <- c('lsm_c_pland', 'lsm_l_ed')
+
+# Make a function to do the calculations and formatting.
+calc.suitable.metrics <- function(x) {
+  sample_lsm(r.suitable, y=camera.sites.sf, size=x, plot_id=camera.nests, shape='circle', 
+             what=suitable.metrics) %>% 
+    left_join(hsi.levels, by=c('class'='ID')) %>% 
+    mutate(class.name=ifelse(is.na(class.name), metric, class.name)) %>% 
+    select(-class, -metric, -level) %>%  
+    pivot_wider(names_from=class.name, values_from=value) %>% 
+    mutate(radius=x)
+}
+
+# Run the function for each sample size.
+suitable.landscape.metrics <- map_df(landscape$radius, calc.suitable.metrics)
+
+# Do some cleanup
+suitable.landscape.metrics <- suitable.landscape.metrics %>% #replace(is.na(.), 0) %>% 
+  select(radius, nest=plot_id, suitable.edge.density=ed, proportion.suitable=pland) %>% 
+  filter(nest != 'TCR2019')
+
+hsi.landscape.metrics <- select(landscape, radius, size) %>% right_join(hsi.landscape.metrics)
+```"

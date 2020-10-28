@@ -1,0 +1,3 @@
+"0","nests <- read_csv('../data/processed/telemetry_sites.csv') %>% "
+"0","  st_as_sf(coords=c('x_coord', 'y_coord')) %>% "
+"0","  st_set_crs('+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs')"

@@ -1,0 +1,8 @@
+"0","# I broke something when I joined the suntimes, so I'll re-make this."
+"0","rlk <- filter(tl.breeding, id == 'HAR04')"
+"0",""
+"0","# Look at distribution of times."
+"0","rlk %>% mutate(n.time=lead(time), d.time=difftime(n.time, time, units='mins')) %>%"
+"0","  ggplot(aes(x=n.time)) +"
+"0","  geom_density(fill='lightgrey') +"
+"0","  theme_classic()"

@@ -1,0 +1,68 @@
+"0","```r
+# Import raster data for BEC zones.
+r.bec <- raster('../data/external/bec_raster_full.tif')
+
+# Get BEC levels.
+bec.levels <- levels(r.bec) %>% data.frame()
+
+# Assign CRS.
+crs(r.bec) <- CRS('+proj=utm +zone=10 +datum=NAD83 +units=m +no_defs')
+
+# Bring in land cover data.
+r.landcover <- raster('../data/processed/vri_sc_all-sites.tif')
+
+# Define land cover levels.
+landcover.levels <- data.frame(ID=0:11, class.name=
+                                     c('undefined', 'rock', 'ocean', 'freshwater',
+                                       'alpine', 'wetland',
+                                       'shrub', 'deciduous', 'regen',
+                                       'young', 'mature', 'old'))
+
+# Add levels to raster.
+levels(r.landcover) <- landcover.levels
+
+# Assign CRS.
+crs(r.landcover) <- CRS('+proj=utm +zone=10 +datum=NAD83 +units=m +no_defs')
+
+# Bring in gap data.
+r.gaps <- raster('../data/processed/gaps_sc_100.tif')
+
+# Define gap levels.
+gap.levels <- data.frame(ID=0:1, class.name=
+                                 c('undefined', 'gap'))
+
+# Add levels to raster.
+levels(r.gaps) <- gap.levels
+
+# Assign CRS.
+crs(r.gaps) <- CRS('+proj=utm +zone=10 +datum=NAD83 +units=m +no_defs')
+
+# Bring in HSI data.
+r.hsi <- raster('../data/processed/foraging_sc.tif')
+
+# Define levels for HSI raster.
+hsi.levels <- data.frame(ID=c(-10, -2, -1, 0, 1, 2, 3), 
+                           class.name=c('ocean', 'freshwater', 'river', 'nil', 'low', 'moderate', 'high'))
+
+# Add to raster.
+levels(r.hsi) <- hsi.levels
+
+# Assign CRS.
+crs(r.hsi) <- CRS('+proj=utm +zone=10 +datum=NAD83 +units=m +no_defs')
+
+# Bring in suitable habitat data.
+r.suitable <- raster('../data/processed/foraging_sc_suitable.tif')
+
+# Define levels for HSI raster.
+suitable.levels <- data.frame(ID=c(0, 4), 
+                           class.name=c('unsuitable', 'suitable'))
+
+# Add to raster.
+levels(r.suitable) <- suitable.levels
+
+# Assign CRS.
+crs(r.suitable) <- CRS('+proj=utm +zone=10 +datum=NAD83 +units=m +no_defs')
+
+# Bring in canopy cover data.
+# Bring in mature forest data.
+```"

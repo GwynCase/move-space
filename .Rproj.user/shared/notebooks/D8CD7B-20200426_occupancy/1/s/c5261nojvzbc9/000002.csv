@@ -1,4 +1,0 @@
-"0","```r
-write_csv(vi.sites, '../data/processed/vi_occupancy_2018-2019.csv')
-write_csv(sc.sites, '../data/processed/sc_occupancy_2018-2019.csv')
-```"

@@ -1,0 +1,9 @@
+"0","```r
+library('lubridate')
+library('tidyverse')
+library('sf')
+library('adehabitatHR')
+library('ggplot2')
+library('knitr')
+df <- read.csv('../data/processed/telem_all.csv', header=TRUE, stringsAsFactors=FALSE)
+```"

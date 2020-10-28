@@ -1,6 +1,0 @@
-"0","# Plot the isopleths.
-plot(ska.lhs.amixed, iso=T, allpts=T, cex.allpts=0.1, ufipt=F)
-"
-"2","Error in (function (filename = ""Rplot%03d.png"", width = 480, height = 480,  : 
-  unable to start png() device
-"

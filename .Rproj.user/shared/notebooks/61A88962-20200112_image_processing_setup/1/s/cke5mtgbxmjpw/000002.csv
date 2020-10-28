@@ -1,5 +1,0 @@
-"0","# How many photos per day?"
-"0","photos %>%"
-"0","  mutate(datetime=floor_date(datetime, unit='days')) %>%"
-"0","  group_by(datetime) %>%"
-"0","  summarize(n())"

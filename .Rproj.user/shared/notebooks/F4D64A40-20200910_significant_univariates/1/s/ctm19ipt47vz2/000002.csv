@@ -1,0 +1,24 @@
+"0","```r
+# Make a list of gap metrics to calculate.
+gap.metrics <- c('lsm_l_ed')
+
+# Make a function to do the calculations and formatting.
+calc.gap.metrics <- function(x) {
+  sample_lsm(r.gaps, y=camera.sites.sf, size=x, plot_id=camera.nests, shape='circle', 
+             what=gap.metrics) %>% 
+    left_join(landcover.levels, by=c('class'='ID')) %>% 
+    mutate(class.name=ifelse(is.na(class.name), metric, class.name)) %>% 
+    select(-class, -metric, -level) %>%  
+    pivot_wider(names_from=class.name, values_from=value) %>% 
+    mutate(radius=x)
+}
+
+# Run the function for each sample size.
+gap.landscape.metrics <- map_df(landscape$radius, calc.gap.metrics)
+
+# Tidy things up.
+gap.landscape.metrics <- gap.landscape.metrics %>% 
+  select(nest=plot_id, gap.edge.density=ed, radius)
+
+gap.landscape.metrics <- select(landscape, radius, size) %>% right_join(gap.landscape.metrics)
+```"

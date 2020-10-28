@@ -1,0 +1,12 @@
+"0","```r
+# Load in camera sites from 2019.
+camera.sites.2019 <- read_csv('../data/raw/camera_nests_2019.csv')
+
+# For now, also make a spatial object of camera sites only.
+camera.sites.sf <-camera.sites.2019 %>% st_as_sf(coords=c('lon', 'lat')) %>%
+  st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs') %>%
+  st_transform(\"+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs\")
+
+# Make a vector of the nest names.
+camera.nests <- camera.sites.sf$nest
+```"

@@ -1,0 +1,21 @@
+"0","```r
+# Load in diet data from cameras.
+source('../src/prey_attributes_revised.R')
+
+# Take only items identified to genus and twist to a wide format.
+camera.diet.wide <- diet.items %>% filter(binomial != 'Unidentified item' & method == 'camera') %>% 
+  group_by(nest, genus, species) %>% 
+  mutate(count=n()) %>% ungroup() %>% 
+  dplyr::select(nest, binomial, count) %>%
+  distinct() %>% 
+  pivot_wider(names_from=binomial, values_from=count,
+              values_fill=list(count = 0))
+
+remains.diet.wide <- diet.items %>% filter(binomial != 'Unidentified item' & method == 'remains') %>% 
+  group_by(nest, genus, species) %>% 
+  mutate(count=n()) %>% ungroup() %>% 
+  dplyr::select(nest, binomial, count) %>%
+  distinct() %>% 
+  pivot_wider(names_from=binomial, values_from=count,
+              values_fill=list(count = 0))
+```"

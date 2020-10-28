@@ -1,8 +1,0 @@
-"0","# Load some packages."
-"0","library('tlocoh') # Requires the FNN package to be installed."
-"0","library('tlocoh.dev')"
-"0","# Load the previous lhs object."
-"0","load('../data/processed/har05.n4671.s0.007.a7000.iso.lhs.01.RData')"
-"0","ska.lhs <- ska.lhs.a7000"
-"0","load('../data/processed/HAR05.n4671.2019-06-23.2019-09-04.lxy.01.RData')"
-"0","plot(ska.lhs, iso=T)"
