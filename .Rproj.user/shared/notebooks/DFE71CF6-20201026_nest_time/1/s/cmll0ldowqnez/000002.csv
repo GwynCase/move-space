@@ -1,0 +1,4 @@
+"0","ggplot(visit.stats, aes(x=date, y=timeInside)) +"
+"0","  geom_point() +"
+"0","  theme_classic() +"
+"0","  facet_wrap(~id, scales='free')"

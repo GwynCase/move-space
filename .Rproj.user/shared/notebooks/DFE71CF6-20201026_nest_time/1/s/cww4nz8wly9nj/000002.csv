@@ -1,0 +1,5 @@
+"0","ggplot(visit.stats, aes(x=time)) +"
+"0","  geom_histogram(stat='count') +"
+"0","  theme_classic() +"
+"0","  facet_wrap(~id)"
+"2","Ignoring unknown parameters: binwidth, bins, pad"

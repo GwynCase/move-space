@@ -1,0 +1,5 @@
+"0","# Dig into that a bit more."
+"0","ggplot(visit.stats, aes(x=date, y=timeSinceLastVisit)) +"
+"0","  geom_point() +"
+"0","  theme_classic() +"
+"0","  facet_wrap(~id, scales='free')"

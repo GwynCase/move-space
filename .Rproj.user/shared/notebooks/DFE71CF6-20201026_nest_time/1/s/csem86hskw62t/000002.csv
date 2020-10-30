@@ -9,7 +9,7 @@
 "0","library(ggplot2)"
 "0","library(extrafont)"
 "0","library(recurse)"
-"0",""
+"2","package ‘recurse’ was built under R version 4.0.3"
 "0","# Define some colors."
 "0","m <- '#d36135' # Flame"
 "0","f <- '#689689' # Polished pine"
