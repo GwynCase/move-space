@@ -1,0 +1,5 @@
+"0","# Define mean step length for each of two states."
+"0","step.mean.0 <- c(100, 1000)"
+"0",""
+"0","# Define step length standard deviation for each of two states."
+"0","step.sd.0 <- c(100, 1000)"

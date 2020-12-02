@@ -1,0 +1,4 @@
+"0","homerange %>% mutate(group=paste(percent, method, sep='')) %>% "
+"0","  ggplot(aes(x=group, y=area)) +"
+"0","  geom_boxplot() +"
+"0","  theme_classic()"

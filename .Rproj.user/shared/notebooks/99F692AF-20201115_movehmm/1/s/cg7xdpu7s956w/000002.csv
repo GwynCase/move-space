@@ -1,0 +1,2 @@
+"0","# Look at the step lengths present in the data."
+"0","hist(mtc$step, breaks=24)"

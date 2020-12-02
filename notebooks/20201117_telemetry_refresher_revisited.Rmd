@@ -1,0 +1,179 @@
+---
+title: "Telemetry refresher"
+output: html_notebook
+---
+
+```{r options, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
+```
+
+Wow so I haven't looked at any telemetry anything since April. And now I am supposed to talk intelligently about it during my committee meeting.
+
+```{r message=FALSE}
+# Import conflict settings.
+source('../src/conflicted.R')
+options(scipen=999)
+
+#Load some libraries.
+library(tidyverse)
+library(sf)
+library(lubridate)
+library(adehabitatHR)
+library(ggplot2)
+library(extrafont)
+
+# Define some colors.
+m <- '#d36135' # Flame
+f <- '#689689' # Polished pine
+
+# Load telemetry data.
+source('../src/clean_telemetry.R')
+
+# Rename the data frame.
+tl <- df
+# tl <- read_csv('../data/processed/telemetry_2018-2019.csv')
+```
+
+Start with some summary information. Note that there was another female tagged in 2019, UTZ, for which no data has been retrieved.
+
+```{r}
+# How many tags?
+tl %>% distinct(site, year(date), id, sex)
+
+# How much data per tag?
+tl %>% group_by(id) %>%
+  mutate(min=min(date), max=max(date), n.points=n(), period=max-min) %>% 
+  distinct(id, site, n.points, min, max, period) 
+```
+
+These points span some pretty different periods. To try to standardize them, I can potentially chose just points within certain stages of the breeding season.
+
+```{r}
+# Define breeding season.
+breeding.2018 <- interval(ymd(20180420), ymd(20180915))
+breeding.2019 <- interval(ymd(20190420), ymd(20190915))
+breeding.2020 <- interval(ymd(20200420), ymd(20200915))
+
+# Select only points that fall within the breeding season.
+tl.breeding <- tl %>% 
+  filter(date %within% c(breeding.2018, breeding.2019, breeding.2020))
+
+# Summarize.
+tl.breeding %>% group_by(id) %>% 
+  mutate(min=min(date), max=max(date), n.points=n(), period=max-min) %>% 
+  distinct(id, site, n.points, min, max, period) %>% 
+  arrange(site)
+```
+
+These intervals combine what I previously called, separately, nestling and fledgling. Since I previously calculated home ranges using those separate categories, here I'll calculate total breeding-season home range.
+
+```{r warning=FALSE}
+# Transform telemetry data to a spatial format.
+tl.breeding.sf <- tl.breeding %>% st_as_sf(coords=c('lon', 'lat')) %>%
+  st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs') %>%
+  st_transform("+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs")
+
+# Make 95% & 50% MCPs
+mcp <- tl.breeding.sf %>%
+  #filter(id != 'HAR03') %>% 
+  select(id, geometry) %>%
+  as_Spatial() %>%
+  mcp.area(percent=c(50, 95), unin='m', unout='ha', plotit=FALSE) %>% 
+  rownames_to_column(var='percent') %>% 
+  pivot_longer(-percent, names_to='id', values_to='area') %>% 
+  mutate(method='mcp')
+
+# Make 95% and 50% KDEs.
+kde <- tl.breeding.sf %>%
+  #filter(id != 'HAR03') %>% 
+  select(id, geometry) %>%
+  as_Spatial() %>%
+  kernelUD() %>% 
+  kernel.area(percent=c(50, 95), unin='m', unout='ha') %>% 
+  rownames_to_column(var='percent') %>% 
+  pivot_longer(-percent, names_to='id', values_to='area') %>% 
+  mutate(method='kde')
+
+# And in the darkness bind them.
+homerange <- bind_rows(mcp, kde)
+
+# Add sex info.
+homerange <- tl %>% distinct(id, sex) %>% right_join(homerange, by=c('id'))
+```
+
+As a check of the methods, let's see how the KDEs and MCPs compare at different scales.
+
+```{r}
+homerange %>% mutate(group=paste(percent, method, sep='')) %>% 
+  ggplot(aes(x=group, y=area)) +
+  geom_boxplot() +
+  theme_classic()
+```
+
+Visually, they look pretty similar. I think I'll be going with the MCPs even though they're stupid because a) they're more widely used and so more comparable and b) the KDE has some issues with the smaller homeranges.
+
+More interestingly, let's look at the difference between males and females.
+
+```{r}
+homerange %>% filter(method == 'mcp') %>%
+  ggplot(aes(x=as.factor(percent), y=area, fill=sex)) +
+  geom_boxplot() +
+  labs(title='Home range and core-use area by sex', x='% MCP', y='Area (ha)') +
+  scale_fill_manual(values=c(f, m)) +
+  theme_classic() +
+  theme(text=element_text(family="Lato Semibold"))
+```
+
+Oh, yeah, huge difference. In table form:
+
+```{r}
+homerange %>% filter(method == 'mcp') %>% 
+  group_by(sex, percent) %>% 
+  summarize(n=n(), mean.area=mean(area))
+```
+
+Let's also look at an overall average.
+
+```{r}
+homerange %>% group_by(percent, method) %>% 
+  summarize(mean.area=mean(area))
+```
+
+I'm a bit suspicious about that graph above, with the KDEs, so let's look at the table form of that.
+
+```{r}
+homerange %>% filter(method == 'kde') %>% 
+  group_by(sex, percent) %>% 
+  summarize(n=n(), mean.area=mean(area))
+```
+
+Ah... that seems problematic. What's going on here? How about the females?
+
+```{r}
+homerange %>% filter(sex == 'f' & percent == 50)
+```
+
+So HAR03 and HAR08 have 50% MCPs of 0 ha because they spend more than 50% of their time just sitting on the nest... I just did the math on HAR03 and she spend almost 96% of her time on the nest, which explains why she also has a 95% MCP of 0.
+
+HAR08 has only 84% of her points at the nest, so apparently that's enough to calculate a proper MCP. This concentration of points at the nest is presumably why the KDE for HAR03 is broken. I think I'll just have to strip her from the analysis.
+
+```{r}
+homerange %>% filter(sex == 'f' & percent == 95)
+```
+
+That seems to have fixed things.
+
+```{r echo=FALSE}
+#write_csv(tl.breeding, '../data/interim/telemetry_problem.csv')
+# st_write(mtc.sf, '../data/interim/mtc_breeding_95.shp')
+# st_write(max.points, '../data/interim/max_points.shp')
+```
+
+
+
+
+
+
+
+
+

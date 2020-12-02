@@ -1,0 +1,150 @@
+---
+title: "Unrecovered data"
+output: html_notebook
+---
+
+```{r options, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
+```
+
+Trying to see how much data we do have compared to how much data we should have.
+
+```{r message=FALSE, warning=FALSE}
+# Import conflict settings.
+source('../src/conflicted.R')
+
+#Load some libraries.
+library(tidyverse)
+library(sf)
+library(ggplot2)
+library(extrafont)
+
+# Load telemetry data.
+source('../src/clean_telemetry.R')
+```
+
+I won't bother doing this with number of points, but I will look at days, and maybe break it down in breeding season days and winter days.
+
+```{r}
+# Transform date into a date.
+telemetry.sites <- telemetry.sites %>% mutate(date=ymd(date))
+
+# Twist wide so each id gets its own row.
+captures <- select(telemetry.sites, m_tag, f_tag, year, date, site, nest) %>%
+  pivot_longer(!c(year, date, site, nest), names_to='sex', values_to='id') %>%
+  drop_na(id) %>%
+  mutate(sex=case_when(
+    sex == 'm_tag' ~ 'm',
+    sex == 'f_tag' ~ 'f'
+  )) %>% 
+  distinct(nest, id, .keep_all=TRUE)
+
+# Get today's date.
+now <- today()
+
+# Calculate difference between tagging date and today's date.
+captures <- captures %>% mutate(e.time=case_when(
+  year == 2018 ~ ymd('2018-12-31') - date,
+  TRUE ~ now - date))
+```
+
+Note that HAR07 died sometime in the winter of 2018, so it isn't fair to count all of the elapsed time since he was tagged--it''s cut off at the end of 2018.
+
+Now calculate how many days of data there actually are. Again, I'll trim HAR07's data to the end of 2018.
+
+```{r}
+# Trim HAR07 points.
+df <- df %>% filter(id != 'HAR07' | datetime <= ymd('2018-12-31'))
+
+# Calculate days of data.
+avail.data <- df %>% group_by(id) %>% 
+  mutate(min=min(date), max=max(date), n.points=n(), period=max-min) %>% 
+  distinct(id, site, n.points, min, max, period) 
+
+# Then join them together.
+t.data <- select(avail.data, id, site, period) %>% right_join(captures, by=c('site', 'id')) %>% 
+  mutate(period=as.numeric(period), e.time=as.numeric(e.time)) %>% 
+  replace_na(list(period=0))
+
+# Calculate percentage of days retrieved.
+t.data %>% mutate(p.time=period/e.time*100)
+```
+
+Ok, so that's per bird. How about overall?
+
+```{r}
+t.data %>% ungroup() %>% summarize(period=sum(period), e.time=sum(e.time)) %>% 
+  mutate(p.time=period/e.time*100)
+```
+
+
+Ooof. So we have only retrieved about 10% of the days of data we should have. Most of that's during the winter, though, yes? Well, at this point maybe not...
+
+```{r}
+# Define breeding season.
+breeding.2018 <- interval(ymd(20180420), ymd(20180915))
+breeding.2019 <- interval(ymd(20190420), ymd(20190915))
+breeding.2020 <- interval(ymd(20200420), ymd(20200915))
+
+# Select only points that fall within the breeding season.
+df.breeding <- df %>% 
+  filter(date %within% c(breeding.2018, breeding.2019, breeding.2020))
+
+# Calculate days of data.
+avail.data.br <- df.breeding %>% group_by(id) %>% 
+  mutate(min=min(date), max=max(date), n.points=n(), period=max-min) %>% 
+  distinct(id, site, n.points, min, max, period) 
+
+# Then join them together.
+t.data.br <- select(avail.data.br, id, site, period) %>% right_join(captures, by=c('site', 'id')) %>% 
+  mutate(period=as.numeric(period), e.time=as.numeric(e.time)) %>% 
+  replace_na(list(period=0))
+
+# Calculate percentage of days retrieved.
+t.data.br %>% mutate(p.time=period/e.time*100)
+```
+
+And overall?
+
+```{r}
+t.data.br %>% ungroup() %>% summarize(period=sum(period), e.time=sum(e.time)) %>% 
+  mutate(p.time=period/e.time*100)
+```
+
+Oh, wow, worse. How does that math even work??
+
+The obvious question is *where* are all these data going? The most depressing option is tag mortality. 
+
+* Blakely etal 2019 had 3/20 birds disappear over 3 years, using the same GPS logger tech and backpack mounts we used.
+* Beier & Drennan 1999 lost 0/20 birds over 2 years, using VHF and backpacks. They report no mortality but do not explicitly state there were no losses.
+* Boal etal 2003 lost 2/33 birds over 2 years wearing VHF and backpacks to predation. An additional bird lost its tag. (Also note that 3 females could not be included bc they had too few points.)
+* McCLaren 2005 13/63 birds in first year after tagging (though study lasted 5 years) with VHF and backpacks. Did not get enough locations to generate a single homerange estimate.
+* Squires & Ruggiero 1995 lost 3/4 birds tagged with VHF and backpacks. This was specifically winter study so low survival expected.
+
+Actual studies of survival are variable. Steenhof etal 2006 found survival nearly halved for tagged prairie falcons, but Sergio etal 2015 found no significant effect in black kites.
+
+Survival on Kaibab was has (Reynolds & Joy 1998), 0.688 for males and 0.866 for females. They also found territory turnover--a territory holder being replaced in a subsequent year--to be 25% for males and 16% for females.
+
+So what actually happened to our birds?
+
+```{r}
+fate <- c('breeding 2020, no data', 
+          'breeding 2020', 
+          'breeding 2020', 
+          'present at site, no 2020 data', 
+          'present at site, no 2020 data',
+          'breeding 2020, no data',
+          'deceased',
+          'breeding 2020, no data',
+          'potentially resident at unknown nest',
+          'present at new site, no 2020 data',
+          'present at site, no 2020 data',
+          'unknown, not breeding at site',
+          'breeding 2020')
+
+t.data %>% arrange(id) %>% bind_cols(fate=fate) %>% select(!date) %>% arrange(year)
+```
+
+Not actually as bad as it sounds.
+
+

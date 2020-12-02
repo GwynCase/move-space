@@ -1,0 +1,4 @@
+"0","homerange %>% group_by(percent, method) %>% "
+"0","  summarize(mean.area=mean(area))"
+"2","`summarise()` regrouping output by 'percent' (override with `.groups` argument)
+"

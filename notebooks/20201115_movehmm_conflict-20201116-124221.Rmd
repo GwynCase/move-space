@@ -1,0 +1,189 @@
+---
+title: "MoveHMM"
+output: html_notebook
+---
+
+```{r options, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
+```
+
+Hidden Markov Models are a method used to classify behavioral states from movement data. I had trouble with it when I first tried it out, so I'm giving it another shot and also making a real notebook for it.
+
+```{r message=FALSE, warning=FALSE}
+# Import conflict settings.
+source('../src/conflicted.R')
+
+#Load some libraries.
+library(tidyverse)
+library(sf)
+library(lubridate)
+library(ggplot2)
+library(recurse)
+library(suncalc)
+library(moveHMM)
+
+# Load telemetry data.
+tl <- read_csv('../data/processed/telemetry_2018-2019.csv')
+
+# RLK appears to have been missexed. I'll change that here.
+tl <- tl %>% mutate(sex = case_when(
+  id == 'HAR04' ~ 'm',
+  TRUE ~ sex
+  ))
+
+# Define breeding season.
+# Note that this is an updated period.
+breeding.2018 <- interval(ymd(20180410), ymd(20180915))
+breeding.2019 <- interval(ymd(20190410), ymd(20190915))
+
+# Select only points that fall within the breeding season.
+tl.breeding <- tl %>% 
+  filter(date %within% c(breeding.2018, breeding.2019))
+
+# Transform telemetry data to a spatial object and convert to UTMs.
+tl.sf <- tl.breeding %>% st_as_sf(coords=c('lon', 'lat')) %>%
+  st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs') %>%
+  st_transform("+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs")
+
+# Convert back to data frame.
+tl.sf.c <- tl.sf %>% mutate(xcoord = unlist(map(tl.sf$geometry,1)),
+       ycoord = unlist(map(tl.sf$geometry,2))) %>% 
+  data.frame() %>% 
+  select(xcoord, ycoord, datetime, id)
+
+# Let's pull out one site to play with. This is the MTC male.
+mtc <- filter(tl.sf.c, id == 'HAR09')
+```
+
+Now that the data is in, let's prep it with the `moveHMM` package.
+
+```{r}
+# Calculate step length and whatnot.
+mtc <- prepData(mtc, type='UTM', coordNames=c('xcoord', 'ycoord'))
+```
+
+And now pick some model parameters for a two-state model. This will hopefully pick up "resting" and "moving." Note that I'm using the full dataset, including nighttime points.
+
+First, pick parameters for step length.
+
+```{r}
+# Look at the step lengths present in the data.
+hist(mtc$step, breaks=24)
+```
+
+For resting, let's say a mean step length of 100m (this may be too large) and for movement let's say 1000m. The default standard deviation is equal to the mean, so we'll go with that for now.
+
+```{r}
+# Define mean step length for each of two states.
+step.mean.0 <- c(100, 1000)
+
+# Define step length standard deviation for each of two states.
+step.sd.0 <- c(100, 1000)
+```
+
+Now do it again with turning angle.
+
+```{r}
+# Look at the distribution of turning angles present in the data.
+hist(mtc$angle)
+```
+
+So kind of interesting. A lot of movement data has a strong central tendency, ie, a big peak around 0 which indicates that the animal spends a lot of time moving in the same-ish direction. Obviously goshawks spend a lot of time turning, since there's not much peak and quite a lot of weight on the edges. Hilariously, there seems to be a lot more weight on the positive side of the graph, which I think indicates this bird is right-handed--he turns clockwise more often than widdershins.
+
+A conservative starting point for the mean angle is 0, so I'll go with that.
+
+```{r}
+# Define mean turning angle for two states.
+angle.mean.0 <- c(0, 0)
+```
+
+Then there's angle concentration, which seems pretty esoteric to me. There doesn't seem to be any really helpful information on how to choose them, except that the state with longer step lengths should have a larger angle concentration.
+
+```{r}
+# Define angle concentration for two states.
+angle.con.0 <- c(1, 5)
+
+# Finally, we need an estimate of how many step lengths are 0. This is 0.
+zero.mass.0 <- c(0,0)
+
+# Combine parameters for step lengths and turning angles.
+step.par.0 <- c(step.mean.0, step.sd.0, zero.mass.0)
+angle.par.0 <- c(angle.mean.0, angle.con.0)
+
+# Fit the HMM.
+mtc.m <- fitHMM(data=mtc, nbStates=2, stepPar0=step.par.0, anglePar0=angle.par.0)
+```
+
+Plotting the output of these is v annoying, so I'll do something really awkward...
+
+```{r}
+# Put everything in a data frame.
+mtc.s <- data.frame(x=mtc$x,
+                    y=mtc$y,
+                    s=viterbi(mtc.m))
+
+# Look at it.
+ggplot(mtc.s, aes(x=x, y=y, color=as.factor(s))) +
+  geom_point() +
+  theme_void()
+```
+
+To compare this to how I've been doing this so far, let's do the day/night thing.
+
+```{r}
+# Calculate sunrise and sunset.
+suntimes <- getSunlightTimes(data=tl, keep=c('sunrise', 'sunset'), 
+                        tz='America/Vancouver')
+
+# Mark daytime and nighttime points.
+tl.breeding <- left_join(tl.breeding, suntimes, by=c('lat', 'lon', 'date')) %>%
+  mutate(period=case_when(
+    between(hour(datetime), hour(sunrise), hour(sunset)) ~ 'day',
+    TRUE ~ 'night'
+  ))
+
+# Plot it.
+filter(tl.breeding, id == 'HAR09') %>% 
+  right_join(mtc, by=c('datetime', 'id')) %>%
+  ggplot(aes(x=x, y=y, color=period)) +
+  geom_point() +
+  theme_void()
+```
+
+Color is backwards so it's not the easiest thing to see, but sure enough the graphs seem to be about the same. Which means I can use super fancy hidden markov models to work out what I can just as easily figure out with a timestamp. Super helpful.
+
+So let's try to do something a little more complicated:a three-state model. We'll start by looking at the distribution of turning angles and such in this simple model, which will hopefully point to how to parameterize the more complicated model.
+
+```{r}
+mtc.m
+```
+
+State 1 (resting) seems pretty accurate, so I can keep those numbers (47m for mean step length, 35m for step length sd,  0 again for zero-mass, 3 for mean turning angle, and concentration of 0.65).
+
+State 2 and the new state 3 are a bit trickier. If we're saying travel vs foraging... foraging should have shorter step lengths than travel, that's easy enough. But the tricky part is turning angles. Because a travel point could be marked by a very low angle (ie moving straight) or the exact opposite, a very sharp angle as the bird turns and heads away from (or towards) the nest.
+
+```{r}
+# Define mean step length.
+step.mean.0.3 <- c(47, 500, 1000)
+
+# Define step length standard deviation.
+step.sd.0.3 <- c(35, 500, 1000)
+
+# Define zero mass.
+zero.mass.0.3 <- c(0, 0, 0)
+
+# Define mean turning angle.
+angle.mean.0.3 <- c(3, x, x)
+
+# Define angle concentration.
+angle.con.0.3 <- c(0.65, x, x)
+
+# Combine them.
+step.par.0.3 <- c(step.mean.0.3, step.sd.0.3, zero.mass.0.3)
+angle.par.0.3 <- c(angle.mean.0.3, angle.con.0.3)
+
+```
+
+
+
+

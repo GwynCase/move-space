@@ -1,0 +1,4 @@
+"0",""
+"0","max.dist %>% ungroup() %>% group_by(sex) %>% summarize(mean(dist))"
+"2","`summarise()` ungrouping output (override with `.groups` argument)
+"

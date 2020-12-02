@@ -1,0 +1,2 @@
+"0","# Calculate step length and whatnot."
+"0","mtc <- prepData(mtc, type='UTM', coordNames=c('xcoord', 'ycoord'))"

@@ -1,0 +1,5 @@
+"0",""
+"0","# How much data per tag?"
+"0","tl %>% group_by(id) %>%"
+"0","  mutate(min=min(date), max=max(date), n.points=n(), period=max-min) %>% "
+"0","  distinct(id, site, n.points, min, max, period) "

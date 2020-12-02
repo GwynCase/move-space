@@ -12,23 +12,26 @@ library('purrr')
 
 # Fill in these three things:
 # Where are the pictures now?
-path.in <- 'D:/RECONYX/TwentyMileCreek/100RECNX_TwentyMile/'
+path.in <- 'E:/RECONYX/RubyLake_2020/100RECNX_Ruby 2020/'
 
 # What site is it?
-site <- 'TMC'
+site <- 'RLK'
 
 # Where are the pictures going?
 # END WITH A FORWARD SLASH
 path.out <- 'D:/'
 
+# What year is the data from?
+year <- '2020'
+
 # Now just hit run and the rest will take care of itself.
-# IT WILL TAKE A WHILE. GO GET A COFFEE AND BE PATIENT.
+# IT MAY TAKE A WHILE, DEPENDING ON THE STRENGTH OF YOUR COMPUTER. GO GET A COFFEE AND BE PATIENT.
 ###
 ###
 ###
 
 # Make a new directory for the files.
-site.dir <- paste0(path.out, site)
+site.dir <- paste0(path.out, site, year)
 dir.create(site.dir)
 
 # Get a list of the photos.
@@ -40,12 +43,12 @@ photo.df <- photo.list %>%
   dplyr::select(filename=FileName, datetime=CreateDate,
                 serial=SerialNumber) %>%
   mutate(site=site, datetime=ymd_hms(datetime)) %>%
-  add_column(interest='', live.chicks='', class='', family='',
+  add_column(interest='', live.chicks='', class='', order='', family='',
              genus='', species='', common='', size='', comments='')
 
 # Save a csv with all the photos.
 write.csv(photo.df,
-          file=paste0(site.dir, '/', site, '_photos_all.csv'),
+          file=paste0(site.dir, '/', site, year, '_photos_all.csv'),
           row.names=FALSE)
 
 # Add a week column.

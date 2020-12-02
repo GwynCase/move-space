@@ -1,0 +1,2 @@
+"0","t.data %>% ungroup() %>% summarize(period=sum(period), e.time=sum(e.time)) %>% "
+"0","  mutate(p.time=period/e.time*100)"
