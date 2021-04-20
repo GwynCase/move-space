@@ -1,6 +1,7 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output: github_document
+always_allow_html: true
 ---
 
 Using KDEs and MCPs I tried to examine how much space a goshawks use, whether the amount of space used varies between individuals and by sex, or by breeding period (nestling, fledgling, etc.). Unfortunately, I don't really have enough data to look at anything other than the nestling period or for all periods, but I do have the groundwork for figuring it out later, once I get the rest of my data.

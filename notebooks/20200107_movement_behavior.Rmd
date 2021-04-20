@@ -1,6 +1,6 @@
 ---
 title: "Movement behavior"
-output: html_notebook
+output: github_document
 ---
 ```{r include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, message=FALSE, warnings=FALSE)
@@ -113,8 +113,11 @@ ska$date <- date(ska$date)
 ska$datetime <- ymd_hms(ska$datetime)
 
 # Get sunrise and sunset times.
-ska <-  getSunlightTimes(data=ska, keep=c('sunrise', 'sunset'), 
+ska.times <-  getSunlightTimes(data=ska, keep=c('sunrise', 'sunset'), 
                         tz='America/Vancouver')
+
+# Bind to location points.
+ska <- left_join(ska, ska.times, by=c('date', 'lat', 'lon'))
 
 # Designate points as day or night.
 ska$diff.rise <- as.numeric(difftime(ska$datetime, 

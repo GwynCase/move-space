@@ -1,0 +1,2 @@
+"0","# Drop the seventh item from the data frame."
+"0","df[[7]] <- NULL"

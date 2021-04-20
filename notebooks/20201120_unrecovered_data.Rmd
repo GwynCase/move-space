@@ -1,6 +1,6 @@
 ---
 title: "Unrecovered data"
-output: html_notebook
+output: github_document
 ---
 
 ```{r options, include=FALSE}

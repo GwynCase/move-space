@@ -1,0 +1,358 @@
+---
+title: "How to clean telemetry"
+output: html_notebook
+---
+
+Hi! This is a walkthrough of the method I used to clean up the raw telemetry files. It assumes you know pretty much nothing about R, which is probably false. You probably know a lot about R, but I thought it would be better to be safe than sorry.
+
+# Setup
+
+The very first step is to load up the tidyverse and lubridate. If you don't have them installed you can run:
+
+```{r eval=FALSE}
+install.packages('tidyverse')
+install.packages('lubridate')
+```
+
+to install it. Then load it with:
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+Now to bring in the data. These are (mostly) the .csv files downloaded directly from the base station, which haven't been opened in Excel or edited or modified in any way. The exception is data from HAR07. The original .csv appears to have been lost at some point, and only a modified version survives. This will cause some problems that need to be dealt with, as you'll see in a moment.
+
+The telemetry data are stored in multiple files, which could make working with them annoying because we have to open each one into R individually. Thankfully, all the file names contain the phrase 'HAR', which means we can easily select all of them at once.
+
+```{r}
+# Make a list of the files containing "HAR".
+file.list <- list.files('../data/raw', pattern='HAR', full.names=TRUE)
+
+file.list
+```
+
+Note that I'm using the relative file path `../data/raw` which means "go up two directories, then down into the folder `data`, then into the folder `raw`." The `pattern` specification tells it to list all the files containing 'HAR' in their name.
+
+We could use `read_csv()` with each of these files individually, but that would take forever. There is a way to apply `read_csv()` to a list of files (like the one we just made above) but it only works with csv files the use a comma (,) as their separator. Unfortunately, all of these files (except one, as you'll see in a moment), use a *semicolon* (;) as their separator. That means `read_csv()` won't work, but `read_delim()` will. The only problem is that `read_delim()` won't work with a list of files. *Sigh.* This means we need a small, rather silly custom function to read in all these semicolon-separated files at once.
+
+```{r}
+# Here's the function.
+read <- function(x) {
+  read_delim(x, ';')
+}
+```
+
+This just says "for each of the things in the list we refer to as 'x', apply the `read_delim()` function, using a semicolon as the separator." Pretty simple.
+
+```{r message=FALSE}
+# Use the function to read in all the files in the file list all at once, 
+# and put all their contents into a single data frame.
+df <- lapply(file.list, read)
+
+# Take a look.
+head(df)
+```
+
+Great so far. The problem is that one of these files secretly didn't read in properly. We can see that if we look at the structure of the data frame (or look at that `NA` just above this).
+
+Right now the data frame is in the form of a nested list, or a list of lists. Think of it a bit like a really complicated bulleted list. Each file we opened got its own level, and all the data in that file is sub-bullets underneath it. It's a bit hard to read like this, but keep an eye out for `$ : tibble`, which is like that top-level bullet point. They all look good, and about the same, except for the seventh one down.
+
+```{r}
+# Examine the structure (str) of the data frame
+str(df)
+```
+
+Surprise, surprise--it's HAR07. Turns out the HAR07 csv file is the only one that *does* use a comma as a separator, so our function, which specified a semicolon as a separator, read it in incorrectly. There's no way to fix it: we have to remove all the HAR07 data and read it in from scratch.
+
+```{r}
+# Drop the seventh item from the data frame.
+df[[7]] <- NULL
+```
+
+Let's take a quick moment to tidy up this data frame. A list of lists is hard to work with, so we can turn it into a regular data frame using `bind_rows()`. And there's one variable that needs to be formatted as a numeric variable--it's important later.
+
+```{r}
+# Reshape the data frame and tidy up.
+df <- bind_rows(df) %>%
+  mutate(Speed=as.numeric(Speed))
+```
+
+Now we can bring in the HAR07 data. *Now* we can use `read_csv()`!
+
+```{r message=FALSE}
+# Read in HAR07 csv.
+HAR07 <- read_csv("../data/raw/HAR07_RAW_2018-07-08_2019-05-09.csv")
+
+# Let's take a peek at it.
+head(HAR07)
+```
+
+Remember that these data have been modified, so they no longer match the structure of the other files, which come straight from the base station. For comparision:
+
+```{r}
+head(df)
+```
+
+You can see the columns are different between the two data frames. So we need to rename the HAR07 columns to match the rest of the data.
+
+```{r}
+# Rename columns for consistency.
+HAR07 <- HAR07 %>% 
+  rename(Latitude=Lat,
+         Longitude=Long,
+         `Searching time`=SearchT,
+         `Logger ID`=LoggerID,
+         Temperature=Temp,
+         `No GPS - timeout`=NoGPS)
+```
+
+Finally, I know HAR07 died sometime in the winter of 2018-2019, though I'm not sure exactly when. To remove the post-mortem points, I'll just clip the HAR07 data to 31 December 2018. Then I'll add these points back to the main data frame.
+
+```{r}
+# Drop all 2019 points.
+HAR07 <- filter(HAR07, Year != 2019)
+
+# Add to the main dataframe.
+df <- bind_rows(df, HAR07)
+```
+
+# Start cleaning
+
+So, working with time in R is hard. A lot of these first steps just involve reformatting date and time columns so that they're useful for us humans but also readable by R.
+
+```{r}
+# Make a single datetime column.
+# Note that the timezone recorded by the tags is UTC, so that's specified here.
+df$datetime <-
+  strptime(paste(df$Year, df$Month, df$Day, df$Hour, df$Minute, df$Second),
+           format='%Y%m%d%H%M%S', tz='UTC')
+
+# Then convert the datetime to the correct timezone.
+df$datetime <- with_tz(df$datetime, tzone = "America/Los_Angeles")
+
+# For some things, I find it helpful to have a separate "date" and "time" column.
+df$date <- date(df$datetime)
+df$time <- format(ymd_hms(df$datetime), '%H:%M%S')
+```
+
+There are also a bunch of columns we don't really need, like dive time. 
+
+```{r}
+# Make a list of all the extra columns we don't need.
+e.cols <- c('Month', 'Day', 'Hour', 'Minute', 'Second',
+            'Altitude', 'Div up', 'Div down', 'No GPS - diving', 'Diving duration',
+            'Raw latitude', 'Raw Longitude', 'Decision voltage', 'Milisecond',
+            'Acc_X', 'Acc_Y', 'Acc_Z')
+
+# Remove them from the data frame.
+df <- select(df, !any_of(e.cols))
+```
+
+I have strong opinions on how things should be named. Consistent, easy-to-read names make everyone's life easier. So I rename the remaining columns.
+
+```{r}
+# Rename the remaining columns in a reasonable, consistent way.
+df <- rename(df, id='Logger ID',
+               lat='Latitude',
+               lon='Longitude',
+               speed='Speed',
+               s.time='Searching time',
+               volt='Voltage',
+               temp='Temperature',
+               no.fix='No GPS - timeout',
+               at.base='In range',
+               year='Year',
+               datetime=datetime)
+```
+
+The tags are programmed not to take any points when they're within range of the base station. This means when the bird is at the nest, the location is recorded as `NA`. But, when the tag fails to get a GPS fix, the location is also recorded as `NA`. In the latter case we really don't know where the bird is, but in the former we know exactly where the bird is--right at the nest. So we can fill in *those* NAs with the coordinate of the nest.
+
+```{r message=FALSE}
+# Read in table of nest coordinates.
+telemetry.sites <- read_csv('../data/processed/telemetry_sites.csv')
+
+# Take a quick look.
+head(telemetry.sites)
+```
+
+A couple important things here. Obviously this data frame will become outdated, so things to keep in mind when it's updated: this data frame *needs* year **and** tag ID because at least one tag has been reused in a different year, and some tags have data in multiple years. If you try to join the location data with the nest site data by tag id alone, it won't work!
+
+```{r}
+# Rearrange the nest coordinates a little so they're easier to join with the location data.
+nest.coords <- select(telemetry.sites, lat, lon, m_tag, f_tag, year, site, nest) %>%
+  pivot_longer(!c(lat, lon, year, site, nest), names_to='sex', values_to='id') %>%
+  drop_na(id) %>% rename(n.lat=lat, n.lon=lon) %>%
+  mutate(sex=case_when(
+    sex == 'm_tag' ~ 'm',
+    sex == 'f_tag' ~ 'f'
+  ))
+
+# Look again.
+head(nest.coords)
+```
+
+Now to integrate the nest coordinates with the telemetry points. This basically says, "change the `lat` column to match the `n.lat` column if the `lat` column has an `NA` in it *and* the `at.base` column has a 1, otherwise leave it alone." A "1" in the `at.base` column indicates the bird was at the base station at that time.
+
+```{r}
+# Now join to main data frame.
+df <- left_join(df, nest.coords, by=c('id', 'year'))
+
+# Fill missing coordinates when bird is at the nest.
+df <- df %>% mutate(
+  lat=case_when(
+    at.base == 1 & is.na(lat) ~ n.lat,
+    TRUE ~ lat
+  ),
+  lon=case_when(
+    at.base == 1 & is.na(lon) ~ n.lon,
+    TRUE ~ lon
+  )
+)
+```
+
+For some of the variables, the tags record "1" if it is true but "NA" if it is false, which I find annoying--I'd rather 1s and 0s.
+
+```{r}
+# Replace NAs with zeroes for the variables no.fix, at.base, and s.time.
+df <- df %>% replace_na(list(no.fix=0, at.base=0, s.time=0))
+```
+
+# Advanced cleaning
+
+So there's a strange, mysterious problem, which is that there seem to be a number of duplicate points. This counts all the points taken by each tag for a given date and time (showing just the ones with duplicates).
+
+```{r, message=FALSE}
+# Pull out the duplicate points to look at them.
+df %>% group_by(id, date, time) %>% summarize(n=n()) %>% filter(n > 1) %>% slice(1)
+```
+
+To look a bit closer, here's that first one from HAR02:
+
+```{r}
+# Look closer at some of the duplicate points.
+df %>% filter(id == 'HAR02' & date == '2020-06-13' & time == '19:0100')
+```
+
+This is obviously the same set of three records, repeated twice. And even those three records are very, very similar: the differences in lat and lon are minuscule. How about another?
+
+```{r}
+# Look closer at some more duplicate points.
+df %>% filter(id == 'HAR03' & date == '2020-06-14' & time == '15:1816')
+```
+
+These are completely the same.
+
+I'm comfortable saying these are just duplicate points. Either it's the result of tag or base station error, or it's due to the base station not getting wiped between downloads and so downloading multiple copies of the same data. So I'm just going to delete the duplicates.
+
+```{r}
+# Remove any duplicates.
+df <- df %>% distinct(id, datetime, .keep_all=TRUE)
+```
+
+Another issue is missed locations. When the tag tries to get a fix and fails, it records `NA` for lat and lon. Like this:
+
+```{r}
+# Pull out a selection of NA locations.
+df %>% group_by(id) %>% filter(is.na(lat)) %>% slice(1)
+```
+
+Now, there are some times when keeping missed locations might be desired, like if you're trying to assess tag efficacy or something. But including those `NA`s can make some code throw errors, so I remove them.
+
+```{r}
+# Remove any missed points.
+df <- df %>% filter(!is.na(lat))
+```
+
+I like to keep extra columns to a minimum, so let's remove the nest coordinates, since we don't need them anymore. If you were calculating the distance of a point from the nest, they might actually be useful to keep.
+
+```{r}
+# Finally, remove the nest coordinates again.
+df <- df %>% select(!c(n.lat, n.lon))
+```
+
+Now for the really fiddly part. There are some problems with some of the location points. These seem to be from two sources:
+
+* the tag was turned on before it was deployed, and recorded points in the middle of a city
+* the tag had an error, and recorded a point in Nunavut or some random field near Olympia
+
+I have found all of these through painful trial and error. I may have missed some. As new data are added, new erroneous points may appear. So expect to have to do additional work here in the future.
+
+Fixing each one individually is very tedious and inefficient. I thought about just dropping all points that weren't within the study area but that wouldn't remove the erroneous points in Vancouver, and it might remove true points taken by a migrating bird. So I haven't been able to find a really efficient way to deal with this problem--maybe you'll have better luck. In the meantime, this has the advantage of being transparent.
+
+```{r}
+# Some HAR09 points were taken in Vancouver; remove them.
+df <- df %>% filter(id != 'HAR09' | lat >= 50)
+
+# Do the exact same for HAR10.
+df <- df %>% filter(id != 'HAR10' | lat >= 50)
+
+# There is an erroneous point for HAR07 in Washington.
+df <- df %>% filter(id != 'HAR07' | lat >= 47)
+
+# There is also an erroneous point for HAR02 somewhere in Nunavut.
+df <- df %>% filter(id != 'HAR02' | lat <= 52)
+```
+
+The last thing to fix is the HAR07 tag, with was first deployed at TMC in 2018 but later redeployed at STV in 2020. This hasn't been an issue so far, because we don't have any points from STV yet. When we do, there will be problems. I wrote this code as a potential fix to the situation by renaming the 'HAR07' points taken in 2020 or later as 'HAR007' (lol) points, and then changing the site name of these points to STV. I obviously haven't had a chance to test this code, so maybe it doesn't work, and even if it does, maybe you don't want the bird to be HAR007.
+
+```{r}
+# Rename HAR07 points in 2020+ as HAR007.
+df <- df %>% mutate(id=case_when(
+  id == 'HAR07' & year >= 2020 ~ 'HAR007',
+  TRUE ~ id
+))
+
+# The site name for STV also needs to be fixed, since it will have been bound incorrectly.
+df <- df %>% mutate(site=case_when(
+  id == 'HAR007' ~ 'STV',
+  TRUE ~ site
+))
+```
+
+# Bonus! Map projections
+
+This isn't really part of data cleaning, but it is a big part of my workflow in R so I'll include it here. 
+
+These location points are in lat/lon, which is great for some things. If you're working in a GIS software like ArcMap, it can convert that coordinate system on the fly to something else, if you need that. But if you're working in R you need to do it manually. 
+
+I particular, anything involving measurements needs to be in x/y coordinates (ie, UTMs). Calculating home ranges in R, for example, requires and xcoord and ycoord rather than a lat and lon. Otherwise, it will try to give you area in degrees^2^ rather than meters^2^, which is just useless.
+
+For this we will need another library.
+
+```{r message=FALSE}
+library(sf)
+# Use
+# install.packages('sf')
+# if necessary.
+```
+
+The process goes like this: tell R the data frame is spatial object by specifying the x and y coords (lat and lon), then name the *current* projection (WGS84), then transform to the *new* projection (UTMs).
+
+```{r}
+# Convert location points to UTMs.
+df <- df %>% 
+  st_as_sf(coords=c('lon', 'lat')) %>%
+  st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs') %>%
+  st_transform("+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs")
+```
+
+This produces a new columns called `geometry` which contains the x and y coordinates.
+
+```{r}
+head(df)
+```
+
+The geometry column looks something like `c(427331.908916404, 5507003.43706482)` which is great for when you're doing an analysis that actually needs a spatial object. This is exactly what those analyses need and they won't take anything else. Unfortunately, some analyses want a separate x and y column. We can make those like this:
+
+```{r}
+# Make separate xcoord and ycoord columns.
+df <- df %>% mutate(xcoord = unlist(map(df$geometry,1)),
+                    ycoord = unlist(map(df$geometry,2))) %>%
+  data.frame()
+
+# Take a look.
+head(df)
+```
+
+And that should be just about all the prep you need to work with these data in R. ***Good luck!!***

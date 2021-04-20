@@ -1,0 +1,3 @@
+"0","# Reshape the data frame and tidy up."
+"0","df <- bind_rows(df) %>%"
+"0","  mutate(Speed=as.numeric(Speed))"

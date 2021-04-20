@@ -1,0 +1,5 @@
+"0","# Read in table of nest coordinates."
+"0","telemetry.sites <- read_csv('../data/processed/telemetry_sites.csv')"
+"0",""
+"0","# Take a quick look."
+"0","head(telemetry.sites)"

@@ -1,0 +1,7 @@
+"0","```r
+# And save it.
+lhs.save(ska.lhs.time.k18, dir='../data/processed')
+```"
+"1","LoCoH-hullset ska.lhs.time.k18 saved as 'ska.lhs.time.k18' to:
+  C:\Users\Gwyn\sfuvault\move-space\data\processed\har05.n4671.s0.007.k18.iso.lhs.03.RData
+"

@@ -1,0 +1,2 @@
+"0","# Replace NAs with zeroes for the variables no.fix, at.base, and s.time."
+"0","df <- df %>% replace_na(list(no.fix=0, at.base=0, s.time=0))"

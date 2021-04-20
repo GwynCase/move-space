@@ -1,0 +1,5 @@
+"0","# Read in HAR07 csv."
+"0","HAR07 <- read_csv(""../data/raw/HAR07_RAW_2018-07-08_2019-05-09.csv"")"
+"0",""
+"0","# Let's take a peek at it."
+"0","head(HAR07)"

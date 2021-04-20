@@ -1,0 +1,5 @@
+"0","# Convert location points to UTMs."
+"0","df <- df %>% "
+"0","  st_as_sf(coords=c('lon', 'lat')) %>%"
+"0","  st_set_crs('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs') %>%"
+"0","  st_transform(""+proj=utm +zone=10 +datum=WGS84 +units=m +no_defs"")"

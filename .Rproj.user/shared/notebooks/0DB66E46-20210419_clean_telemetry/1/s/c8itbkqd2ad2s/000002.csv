@@ -1,0 +1,4 @@
+"0","# Here's the function."
+"0","read <- function(x) {"
+"0","  read_delim(x, ';')"
+"0","}"

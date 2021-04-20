@@ -1,0 +1,2 @@
+"0","# Pull out a selection of NA locations."
+"0","df %>% group_by(id) %>% filter(is.na(lat)) %>% slice(1)"

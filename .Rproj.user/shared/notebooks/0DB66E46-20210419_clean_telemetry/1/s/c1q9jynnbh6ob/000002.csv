@@ -1,0 +1,8 @@
+"0","# Make a list of all the extra columns we don't need."
+"0","e.cols <- c('Month', 'Day', 'Hour', 'Minute', 'Second',"
+"0","            'Altitude', 'Div up', 'Div down', 'No GPS - diving', 'Diving duration',"
+"0","            'Raw latitude', 'Raw Longitude', 'Decision voltage', 'Milisecond',"
+"0","            'Acc_X', 'Acc_Y', 'Acc_Z')"
+"0",""
+"0","# Remove them from the data frame."
+"0","df <- select(df, !any_of(e.cols))"

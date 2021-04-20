@@ -1,0 +1,8 @@
+"0","# Rename columns for consistency."
+"0","HAR07 <- HAR07 %>% "
+"0","  rename(Latitude=Lat,"
+"0","         Longitude=Long,"
+"0","         `Searching time`=SearchT,"
+"0","         `Logger ID`=LoggerID,"
+"0","         Temperature=Temp,"
+"0","         `No GPS - timeout`=NoGPS)"

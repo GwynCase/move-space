@@ -1,0 +1,4 @@
+"0","```r
+ska.lhs <- lhs.visit.add(ska.lhs, ivg=3600*20)
+hist(ska.lhs, metric='nsv')
+```"

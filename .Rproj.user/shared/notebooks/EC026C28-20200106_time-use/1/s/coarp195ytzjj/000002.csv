@@ -1,0 +1,6 @@
+"0","```r
+ska.tumap1 <- lxy.tumap(ska.lxy, ivg=10*3600, gridtype='hex')
+```"
+"0","```r
+plot(ska.tumap1, cex.axis=0.8, cex=0.8, legend='topright')
+```"

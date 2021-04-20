@@ -1,6 +1,7 @@
 ---
 title: "Summary of home range"
 output: html_notebook
+always_allow_html: true
 ---
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 library('tidyverse')

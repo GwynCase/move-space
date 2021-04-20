@@ -1,0 +1,22 @@
+"0","```r
+# Load in the filled csv.
+photos_4 <- 
+  read.csv('C:/Users/Gwyn/sfuvault/move-space/data/interim/TMC_photos_4.csv')
+
+# Load in the empty csv.
+photos_4.old <- 
+  read_csv('C:/Users/Gwyn/sfuvault/move-space/data/interim/n_cam_csv/TMC_photos_4.csv')
+
+# Patch the new with the old.
+photos_4$datetime <- photos_4.old$datetime
+
+# Save the fixed new one.
+write.csv(photos_4, 
+    file='C:/Users/Gwyn/sfuvault/move-space/data/interim/TMC_photos_4_patch.csv',
+        row.names=FALSE)
+
+# The fourth csv is already loaded, so drop it from the list.
+csv.list <- csv.list[-11]
+
+# And start over...
+```"
