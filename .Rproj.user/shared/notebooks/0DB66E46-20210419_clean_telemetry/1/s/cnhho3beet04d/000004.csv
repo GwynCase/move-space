@@ -1,7 +1,0 @@
-"0","# Make separate xcoord and ycoord columns."
-"0","df <- df %>% mutate(xcoord = unlist(map(df$geometry,1)),"
-"0","                    ycoord = unlist(map(df$geometry,2))) %>%"
-"0","  data.frame()"
-"0",""
-"0","# Take a look."
-"0","head(df)"

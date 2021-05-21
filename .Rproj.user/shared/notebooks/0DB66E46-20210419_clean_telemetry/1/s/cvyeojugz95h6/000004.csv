@@ -1,8 +1,0 @@
-"0","# Use the function to read in all the files in the file list all at once, "
-"0","# and put all their contents into a single data frame."
-"0","df <- lapply(file.list, read)"
-"0",""
-"0","# Take a look."
-"0","head(df)"
-"1","[[1]]
-"

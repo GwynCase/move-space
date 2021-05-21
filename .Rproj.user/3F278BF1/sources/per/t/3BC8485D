@@ -3,24 +3,24 @@
     "path": "C:/Users/gwync/sfuvault/move-space/notebooks/20210419_clean_telemetry.Rmd",
     "project_path": "notebooks/20210419_clean_telemetry.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "2184837110",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1618868619098.0,
     "source_on_save": false,
     "relative_order": 4,
     "properties": {
         "tempName": "Untitled1",
         "chunk_output_type": "inline",
-        "cursorPosition": "312,260",
-        "scrollLine": "300"
+        "cursorPosition": "0,0",
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1618940350,
+    "lastKnownWriteTime": 1618942748,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1618940453925,
+    "last_content_update": 1618942748,
     "read_only": false,
     "read_only_alternatives": []
 }
